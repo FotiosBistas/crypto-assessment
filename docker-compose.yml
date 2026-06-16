@@ -29,7 +29,7 @@ services:
       #CBOMKIT_FRONTEND_URL_CORS: "http://localhost:8001"
       #CBOMKIT_FRONTEND_URL_CORS: "http://localhost:5173"
       CBOMKIT_FRONTEND_URL_CORS: "http://localhost:8000"
-      CBOMKIT_OPA_API_BASE: "http://opa:8181"
+      CBOMKIT_OPA_API_BASE: "http://opa-local:8181"
     ports:
       - "8081:8081"
     volumes:
@@ -102,7 +102,7 @@ services:
     ports:
       - "8181:8181"
     volumes:
-      - "${PWD}/policies/eccg:/policies:ro"
+      - ./policies/eccg:/policies:ro
     profiles:
       - dev-frontend
       - policy
