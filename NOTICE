@@ -1,0 +1,14 @@
+CRA Compliance Checker
+Copyright 2026 Fotis Bistas
+
+This product is licensed under the Apache License, Version 2.0.
+
+This product includes material adapted from or designed to interoperate with
+CBOMkit. CBOMkit notices present in copied or adapted source files have been
+preserved where they apply.
+
+This product uses Open Policy Agent and Rego for policy evaluation, and uses
+Semgrep-compatible rules for source-code analysis. These product and project
+names are used only to describe interoperability and do not imply endorsement.
+
+See THIRD_PARTY_NOTICES.md for additional attribution and dependency notes.

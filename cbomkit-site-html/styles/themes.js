@@ -1,3 +1,11 @@
+/*
+ * Copyright 2026 Fotis Bistas and contributors
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Portions of this static frontend were adapted from the CBOMkit site template
+ * and modified for CRA Compliance Checker.
+ */
+
 export const lightTheme = {
   pageBg: "#f1f5f9",
   cardBg: "#f8fafc",
