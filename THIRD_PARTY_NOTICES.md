@@ -1,15 +1,15 @@
 # Third-Party Notices
 
 This repository is distributed under the Apache License, Version 2.0. The
-following notices document upstream projects, copied or adapted material, and
-runtime tools used by the project.
+following notices document upstream projects, copied and modified material,
+design inspiration, and runtime tools used by the project.
 
 ## CBOMkit
 
-The Docker Compose setup, backend integration flow, and parts of the static
-frontend structure were adapted from or designed around CBOMkit.
+The Docker Compose setup was copied from CBOMkit and modified for this project.
+The upstream notice is preserved in `docker-compose.yml`.
 
-Preserved upstream notice appearing in copied or adapted material:
+Preserved upstream notice appearing in the copied and modified Compose file:
 
 ```text
 CBOMkit
@@ -18,9 +18,29 @@ Licensed to the Apache Software Foundation (ASF) under one or more contributor
 license agreements.
 ```
 
+The static frontend was independently implemented for this project. Its user
+input model and workflow were inspired by CBOMkit concepts, including scanning a
+Git URL, optionally selecting a scan path, and evaluating generated CBOM data
+with Rego policies. No CBOMkit frontend source code was copied into this
+repository.
+
+The similar repository-scan input flow includes:
+
+- Git URL
+- Scan path
+- Branch
+- Commit
+- Personal access token
+- Check compliance action
+
+The Rego policy-evaluation flow is an independently implemented approach
+inspired by CBOMkit's use of policy evaluation. No CBOMkit policy-evaluation
+source code was copied into this repository.
+
 CBOMkit is referenced by container images under `ghcr.io/cbomkit/*` and by the
 frontend API integration with the CBOMkit scan service. CBOMkit names are used
-only to identify interoperability and upstream origin.
+only to identify interoperability, inspiration, and upstream origin of the
+copied Compose file.
 
 ## Open Policy Agent / Rego
 
