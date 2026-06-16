@@ -1,3 +1,10 @@
+/*
+ * Copyright 2026 ExcID
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Static frontend independently implemented for CRA Compliance Checker.
+ */
+
 export const styles = {
   page: {
     minHeight: "100vh",

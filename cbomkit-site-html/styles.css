@@ -1,3 +1,10 @@
+/*
+ * Copyright 2026 ExcID
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Static frontend independently implemented for CRA Compliance Checker.
+ */
+
 :root {
   --blue: #0d47a1;
   --blue-2: #0b5ed7;
@@ -634,4 +641,3 @@ button:disabled {
   margin-top: 14px;
   flex-wrap: wrap;
 }
-

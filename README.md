@@ -504,7 +504,9 @@ If you have a suggestion that would improve this frontend, please fork the repos
 
 ## License
 
-Distributed under the project license. See `LICENSE.txt` or the repository license file for more information.
+Distributed under the Apache License, Version 2.0. See `LICENSE` for the full
+license text and `NOTICE` / `THIRD_PARTY_NOTICES.md` for attribution and
+third-party notices.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -540,8 +542,6 @@ Project Link: https://github.com/excid-io/cracy-cryptography-tool
 [issues-shield]: https://img.shields.io/github/issues/excid-io/cracy-cryptography-tool.svg?style=for-the-badge
 [issues-url]: https://github.com/excid-io/cracy-cryptography-tool/issues
 [license-shield]: https://img.shields.io/github/license/excid-io/cracy-cryptography-tool.svg?style=for-the-badge
-[license-url]: https://github.com/excid-io/cracy-cryptography-tool/blob/main/LICENSE.txt
+[license-url]: https://github.com/excid-io/cracy-cryptography-tool/blob/main/LICENSE
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/company/cracy/
-
-```

@@ -1,3 +1,10 @@
+/*
+ * Copyright 2026 ExcID
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Modified for CRA Compliance Checker.
+ */
+
 /**
  * Normalizes the repository URL format expected by the CBOMkit scan API.
  *

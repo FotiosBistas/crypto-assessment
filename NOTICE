@@ -1,0 +1,20 @@
+CRA Compliance Checker
+Copyright 2026 ExcID
+
+This product is licensed under the Apache License, Version 2.0.
+
+This product interoperates with CBOMkit and uses a similar repository-scan input
+model, including fields such as Git URL and scan path. No CBOMkit frontend
+source code was copied into this product.
+
+The Rego policy-evaluation flow is an independently implemented approach
+inspired by CBOMkit's use of policy evaluation.
+
+The Docker Compose configuration was copied from CBOMkit and modified for this
+project. The applicable CBOMkit notice has been preserved in docker-compose.yml.
+
+This product uses Open Policy Agent and Rego for policy evaluation, and uses
+Semgrep-compatible rules for source-code analysis. These product and project
+names are used only to describe interoperability and do not imply endorsement.
+
+See THIRD_PARTY_NOTICES.md for additional attribution and dependency notes.

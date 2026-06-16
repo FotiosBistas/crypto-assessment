@@ -1,3 +1,10 @@
+/*
+ * Copyright 2026 ExcID
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Modified for CRA Compliance Checker.
+ */
+
 export const HTTP_API_BASE =
   window.CRA_COMPLIANCE_CONFIG?.CBOMKIT_HTTP_API_BASE || "http://localhost:8081";
 

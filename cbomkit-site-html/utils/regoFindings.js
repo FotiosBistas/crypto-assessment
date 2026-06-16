@@ -1,3 +1,10 @@
+/*
+ * Copyright 2026 ExcID
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Modified for CRA Compliance Checker.
+ */
+
 /**
  * Severities that should be shown in the UI.
  *
