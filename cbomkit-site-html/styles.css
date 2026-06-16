@@ -1,5 +1,5 @@
 /*
- * Copyright 2026 Fotis Bistas and contributors
+ * Copyright 2026 Excid
  * SPDX-License-Identifier: Apache-2.0
  *
  * Static frontend independently implemented for CRA Compliance Checker.
