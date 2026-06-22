@@ -4,6 +4,11 @@ import data.cbom.eccg.helpers.is_public_key_primitive
 import data.cbom.eccg.helpers.get_name_or_unknown
 import data.cbom.eccg.helpers.normalize_crypto_name
 import data.cbom.eccg.helpers.normalize_ec_curve_name
+import data.cbom.eccg.helpers.get_parameter_set_identifier_to_number_or_unknown
+import data.cbom.eccg.helpers.get_note
+import data.cbom.eccg.helpers.legacy_marker_status
+import data.cbom.eccg.helpers.legacy_status_message
+import data.cbom.eccg.helpers.legacy_status_severity
 
 #
 # ---------------------------------------------------------
@@ -102,6 +107,7 @@ classify_rsa_modulus(n) = "recommended" if {
 # Detection strategy:
 # - Prefer explicit FF-DLOG indicators when present.
 # - Detect standardized group names such as:
+#     • FFDH / FFDHE (CycloneDX pattern: FFDH(E)-{namedGroup})
 #     • FFDHE (including TLS named groups like ffdhe2048)
 #     • MODP
 # - Fall back to finite-field Diffie-Hellman naming:
@@ -113,7 +119,7 @@ classify_rsa_modulus(n) = "recommended" if {
 # the FF-DLOG primitive/assumption.
 #
 # Notes:
-# - This helper explicitly treats FFDHE as FF-DLOG.
+# - This helper explicitly treats FFDH/FFDHE as FF-DLOG.
 # - This helper must NOT match elliptic-curve Diffie-Hellman:
 #     • ECDH, ECDHE
 #     • X25519, X448
@@ -126,6 +132,21 @@ is_ffdlog_primitive(component) if {
 
     # Explicit FF-DLOG naming
     contains(normalized_name, "ffdlog")
+} else if {
+    name := get_name_or_unknown(component)
+    normalized_name := normalize_crypto_name(name)
+
+    # CycloneDX FFDH family / FFDHE groups (e.g., FFDH-ffdhe3072)
+    # → Direct mapping to FF-DLOG
+    contains(normalized_name, "ffdh")
+} else if {
+    props := component.cryptoProperties.algorithmProperties
+
+    family := object.get(props, "algorithmFamily", "")
+    normalized_family := normalize_crypto_name(family)
+
+    # CycloneDX cryptography registry family.
+    normalized_family == "ffdh"
 } else if {
     name := get_name_or_unknown(component)
     normalized_name := normalize_crypto_name(name)
@@ -184,6 +205,175 @@ is_ffdlog_primitive(component) if {
 
     contains(normalized_name, "dhe")
 }
+
+#
+# ---------------------------------------------------------
+# Helper: get_ffdlog_group_family_or_unknown
+#
+# Purpose:
+# Identify whether an FF-DLOG component is one of the ECCG
+# agreed standardized finite-field parameter families.
+#
+# ECCG agrees:
+# - MODP groups from RFC3526
+# - FFDHE groups from RFC7919
+#
+# Detection order:
+# - component.name
+# - algorithmProperties.algorithmFamily
+# - algorithmProperties.namedGroup or parameterSetIdentifier, for
+#   registry-style values that include the family name, such as
+#   "ffdhe3072".
+# ---------------------------------------------------------
+#
+get_ffdlog_group_family_or_unknown(component) := "MODP" if {
+    name := get_name_or_unknown(component)
+    normalized_name := normalize_crypto_name(name)
+    contains(normalized_name, "modp")
+} else := "FFDHE" if {
+    name := get_name_or_unknown(component)
+    normalized_name := normalize_crypto_name(name)
+    contains(normalized_name, "ffdhe")
+} else := "MODP" if {
+    props := component.cryptoProperties.algorithmProperties
+    family := object.get(props, "algorithmFamily", "")
+    normalized_family := normalize_crypto_name(family)
+    contains(normalized_family, "modp")
+} else := "FFDHE" if {
+    props := component.cryptoProperties.algorithmProperties
+    family := object.get(props, "algorithmFamily", "")
+    normalized_family := normalize_crypto_name(family)
+    contains(normalized_family, "ffdhe")
+} else := "FFDHE" if {
+    props := component.cryptoProperties.algorithmProperties
+    family := object.get(props, "algorithmFamily", "")
+    normalized_family := normalize_crypto_name(family)
+    normalized_family == "ffdh"
+
+    named_group := object.get(props, "namedGroup", "")
+    normalized_named_group := normalize_crypto_name(named_group)
+    contains(normalized_named_group, "ffdhe")
+} else := "FFDHE" if {
+    props := component.cryptoProperties.algorithmProperties
+    family := object.get(props, "algorithmFamily", "")
+    normalized_family := normalize_crypto_name(family)
+    normalized_family == "ffdh"
+
+    parameter_set := object.get(props, "parameterSetIdentifier", "")
+    normalized_parameter_set := normalize_crypto_name(parameter_set)
+    contains(normalized_parameter_set, "ffdhe")
+} else := "MODP" if {
+    props := component.cryptoProperties.algorithmProperties
+    parameter_set := object.get(props, "parameterSetIdentifier", "")
+    normalized_parameter_set := normalize_crypto_name(parameter_set)
+    contains(normalized_parameter_set, "modp")
+} else := "FFDHE" if {
+    props := component.cryptoProperties.algorithmProperties
+    parameter_set := object.get(props, "parameterSetIdentifier", "")
+    normalized_parameter_set := normalize_crypto_name(parameter_set)
+    contains(normalized_parameter_set, "ffdhe")
+} else := "unknown"
+
+is_eccg_agreed_ffdlog_group_family(component) if {
+    family := get_ffdlog_group_family_or_unknown(component)
+    family == "MODP"
+} else if {
+    family := get_ffdlog_group_family_or_unknown(component)
+    family == "FFDHE"
+}
+
+#
+# ---------------------------------------------------------
+# Helper: get_ffdlog_group_bits_or_unknown
+#
+# Purpose:
+# Extract the FF-DLOG group size in bits.
+#
+# Preferred source:
+# - numeric algorithmProperties.parameterSetIdentifier
+#
+# Fallback:
+# - known standardized group-size tokens in component.name,
+#   algorithmProperties.namedGroup, or parameterSetIdentifier,
+#   such as "ffdhe3072" or "modp2048".
+# ---------------------------------------------------------
+#
+get_ffdlog_group_bits_or_unknown(component) := bits if {
+    bits := get_parameter_set_identifier_to_number_or_unknown(component)
+    bits != "unknown"
+} else := 2048 if {
+    ffdlog_group_size_token_present(component, "2048")
+} else := 3072 if {
+    ffdlog_group_size_token_present(component, "3072")
+} else := 4096 if {
+    ffdlog_group_size_token_present(component, "4096")
+} else := 6144 if {
+    ffdlog_group_size_token_present(component, "6144")
+} else := 8192 if {
+    ffdlog_group_size_token_present(component, "8192")
+} else := "unknown"
+
+ffdlog_group_size_token_present(component, token) if {
+    name := get_name_or_unknown(component)
+    normalized_name := normalize_crypto_name(name)
+    contains(normalized_name, token)
+} else if {
+    props := component.cryptoProperties.algorithmProperties
+    parameter_set := object.get(props, "parameterSetIdentifier", "")
+    normalized_parameter_set := normalize_crypto_name(parameter_set)
+    contains(normalized_parameter_set, token)
+} else if {
+    props := component.cryptoProperties.algorithmProperties
+    named_group := object.get(props, "namedGroup", "")
+    normalized_named_group := normalize_crypto_name(named_group)
+    contains(normalized_named_group, token)
+}
+
+FFDLOG_SECTION := "Asymmetric-Atomic-Primitives"
+FFDLOG_SUBSECTION := "FF-DLOG"
+FFDLOG_LEGACY_MARKER := "L[2025]"
+
+ff_dlog_legacy_size(p_bits) if {
+    p_bits > 1900
+    p_bits < 3000
+}
+
+ff_dlog_size_status(p_bits) := status if {
+    ff_dlog_legacy_size(p_bits)
+    status := legacy_marker_status(FFDLOG_LEGACY_MARKER)
+} else := "not_agreed"
+
+ff_dlog_size_severity(p_bits) := severity if {
+    ff_dlog_legacy_size(p_bits)
+    status := legacy_marker_status(FFDLOG_LEGACY_MARKER)
+    severity := legacy_status_severity(status)
+} else := "critical"
+
+ff_dlog_size_message(p_bits, status) := message if {
+    ff_dlog_legacy_size(p_bits)
+    legacy_message := legacy_status_message("FF-DLOG group size", FFDLOG_LEGACY_MARKER, status)
+    message := sprintf(
+        "MODP and FFDHE group size must be >=3072 bits. Detected p=%d bits. %s",
+        [p_bits, legacy_message],
+    )
+} else := message if {
+    message := sprintf(
+        "MODP and FFDHE group size must be >=3072 bits. Detected non-agreed group size p=%d bits.",
+        [p_bits],
+    )
+}
+
+ff_dlog_size_notes(p_bits) := notes if {
+    ff_dlog_legacy_size(p_bits)
+
+    precomputation_note := get_note(FFDLOG_SECTION, FFDLOG_SUBSECTION, "33-Precomputation")
+    legacy_note := get_note(FFDLOG_SECTION, FFDLOG_SUBSECTION, "34-LegacyFF-DLOG")
+
+    notes := {
+        "precomputation": precomputation_note,
+        "legacy": legacy_note,
+    }
+} else := {}
 
 #
 # ---------------------------------------------------------

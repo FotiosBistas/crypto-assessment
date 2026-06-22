@@ -222,12 +222,12 @@
 ### Agreed FF-DLOG Parameters
 
 - ECCG-FFDLOG-001:
-    - Severity: info
-    - FF-DLOG primitive was detected with group size p=[x] bits and is classified as recommended.
+    - Severity: critical
+    - FF-DLOG primitive [scheme] is not identifiable as an agreed MODP (RFC3526) or FFDHE (RFC7919) group.
 
 - ECCG-FFDLOG-002:
-    - Severity: critical
-    - FF-DLOG primitive was detected with legacy group size p=[x] bits and is classified as Legacy[2025].
+    - Severity: warning/error/critical
+    - MODP and FFDHE group size must be at least 3072 bits. 2048-bit MODP/FFDHE groups are legacy-only L[2025], and missing group-size data is reported as inconclusive.
 
 ### Agreed Elliptic Curve Parameters
 
