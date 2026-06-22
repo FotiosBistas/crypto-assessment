@@ -1,6 +1,7 @@
 package cbom.eccg.asymmetric_atomic_primitives.helpers
 
 import data.cbom.eccg.helpers.is_public_key_primitive
+import data.cbom.eccg.helpers.is_asymmetric_algorithm
 import data.cbom.eccg.helpers.get_name_or_unknown
 import data.cbom.eccg.helpers.normalize_crypto_name
 import data.cbom.eccg.helpers.normalize_ec_curve_name
@@ -71,15 +72,83 @@ is_rsa_primitive(component) if {
     name := get_name_or_unknown(component)
     normalized_name := normalize_crypto_name(name)
     contains(normalized_name, "rsa")
+} else if {
+    component.cryptoProperties.assetType == "algorithm"
+
+    props := component.cryptoProperties.algorithmProperties
+    family := object.get(props, "algorithmFamily", "")
+    normalized_family := normalize_crypto_name(family)
+
+    contains(normalized_family, "rsa")
+} else if {
+    component.cryptoProperties.assetType == "algorithm"
+
+    props := component.cryptoProperties.algorithmProperties
+    primitive := lower(object.get(props, "primitive", ""))
+    primitive == "signature"
+
+    name := get_name_or_unknown(component)
+    normalized_name := normalize_crypto_name(name)
+    contains(normalized_name, "rsa")
+} else if {
+    is_asymmetric_algorithm(component)
+    name := get_name_or_unknown(component)
+    normalized_name := normalize_crypto_name(name)
+    contains(normalized_name, "rsa")
 }
 
 
 
-classify_rsa_modulus(n) = "recommended" if {
-    n >= 3000
-} else = "legacy" if {
+RSA_SECTION := "Asymmetric-Atomic-Primitives"
+RSA_SUBSECTION := "RSA-Integer-Factorization"
+RSA_LEGACY_MARKER := "L[2025]"
+
+rsa_legacy_modulus_size(n) if {
     n >= 1900
-} else = "disallowed" if {
+    n < 3000
+}
+
+rsa_recommended_modulus_size(n) if {
+    n >= 3000
+}
+
+classify_rsa_modulus(n) = "recommended" if {
+    rsa_recommended_modulus_size(n)
+} else = "legacy" if {
+    rsa_legacy_modulus_size(n)
+} else = "not_agreed" if {
+    true
+}
+
+rsa_modulus_status(n) := status if {
+    rsa_legacy_modulus_size(n)
+    status := legacy_marker_status(RSA_LEGACY_MARKER)
+} else := "not_agreed"
+
+rsa_modulus_severity(n) := severity if {
+    rsa_legacy_modulus_size(n)
+    status := legacy_marker_status(RSA_LEGACY_MARKER)
+    severity := legacy_status_severity(status)
+} else := "critical"
+
+rsa_modulus_message(n, status) := message if {
+    rsa_legacy_modulus_size(n)
+    legacy_message := legacy_status_message("RSA modulus size", RSA_LEGACY_MARKER, status)
+    message := sprintf(
+        "RSA modulus size must be >=3000 bits and must satisfy log2(e) > 16. Detected n=%d bits. The public exponent condition could not be verified from CycloneDX data. %s",
+        [n, legacy_message],
+    )
+} else := message if {
+    message := sprintf(
+        "RSA modulus size must be >=3000 bits and must satisfy log2(e) > 16. Detected non-agreed modulus size n=%d bits. The public exponent condition could not be verified from CycloneDX data.",
+        [n],
+    )
+}
+
+rsa_modulus_notes(n) := note if {
+    rsa_legacy_modulus_size(n)
+    note := get_note(RSA_SECTION, RSA_SUBSECTION, "30-LegacyRSA")
+} else := {} if {
     true
 }
 

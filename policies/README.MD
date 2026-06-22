@@ -212,12 +212,8 @@
 ### RSA Integer Factorization
 
 - ECCG-RSA-001:
-    - Severity: info
-    - RSA primitive was detected with modulus size n=[x] bits and is classified as recommended. The ECCG exponent condition log2(e) > 16 could not be verified from CycloneDX data.
-
-- ECCG-RSA-002:
-    - Severity: critical
-    - RSA primitive was detected with Legacy[2025] modulus size n=[x] bits ( 1900 <= bits < 3000 ). The ECCG exponent condition log2(e) > 16 could not be verified from CycloneDX data.
+    - Severity: warning/error/critical
+    - RSA modulus size must be at least 3000 bits and must satisfy log2(e) > 16. RSA sizes 1900 <= n < 3000 are legacy-only L[2025], and missing modulus data is reported as inconclusive because the CBOM cannot verify the RSA size or exponent requirements.
 
 ### Agreed FF-DLOG Parameters
 
