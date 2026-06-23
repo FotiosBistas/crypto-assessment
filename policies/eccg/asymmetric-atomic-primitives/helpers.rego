@@ -5,6 +5,7 @@ import data.cbom.eccg.helpers.is_asymmetric_algorithm
 import data.cbom.eccg.helpers.get_name_or_unknown
 import data.cbom.eccg.helpers.normalize_crypto_name
 import data.cbom.eccg.helpers.normalize_ec_curve_name
+import data.cbom.eccg.helpers.get_ec_curve_or_unknown
 import data.cbom.eccg.helpers.get_parameter_set_identifier_to_number_or_unknown
 import data.cbom.eccg.helpers.get_note
 import data.cbom.eccg.helpers.legacy_marker_status
@@ -458,6 +459,10 @@ ff_dlog_size_notes(p_bits) := notes if {
 # - ECCG agrees only elliptic curves over prime fields.
 #
 # Detection strategy:
+# - Prefer explicit EC-DLOG indicators in the component name or
+#   algorithmProperties.primitive.
+# - Treat algorithm components with extractable EC curve metadata as
+#   EC-DLOG-bearing primitives, even if the component name is generic.
 # - Detect EC key-agreement algorithms:
 #     • ECDH
 #     • ECDHE
@@ -480,6 +485,24 @@ ff_dlog_size_notes(p_bits) := notes if {
 # ---------------------------------------------------------
 #
 is_ecdlog_primitive(component) if {
+    name := get_name_or_unknown(component)
+    normalized_name := normalize_crypto_name(name)
+
+    contains(normalized_name, "ecdlog")
+} else if {
+    component.cryptoProperties.assetType == "algorithm"
+
+    props := object.get(component.cryptoProperties, "algorithmProperties", {})
+    primitive := object.get(props, "primitive", "")
+    normalized_primitive := normalize_crypto_name(primitive)
+
+    contains(normalized_primitive, "ecdlog")
+} else if {
+    component.cryptoProperties.assetType == "algorithm"
+
+    curve := get_ec_curve_or_unknown(component)
+    curve != "unknown"
+} else if {
     name := get_name_or_unknown(component)
     normalized_name := normalize_crypto_name(name)
 

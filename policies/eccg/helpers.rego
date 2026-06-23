@@ -709,21 +709,113 @@ normalize_ec_curve_name(curve) := normalized if {
 #
 # Detection order:
 # 1. cryptoProperties.algorithmProperties.ellipticCurve
-# 2. component.name fallback
+# 2. cryptoProperties.algorithmProperties.namedGroup
+# 3. cryptoProperties.algorithmProperties.parameterSetIdentifier
+# 4. Recognizable curve token in component.name
 #
 # Rationale:
 # CycloneDX 1.7 provides algorithmProperties.ellipticCurve,
 # but CBOM tools may serialize curve information inconsistently.
 # This helper therefore checks multiple possible locations.
+#
+# The component-name fallback intentionally extracts only known curve
+# identifiers. A bare algorithm name such as "ECDH" is not a curve and should
+# produce "unknown" so the EC-DLOG policy can report an inconclusive finding.
 # ---------------------------------------------------------
 #
 get_ec_curve_or_unknown(component) := curve if {
-    props := component.cryptoProperties.algorithmProperties
-    curve := object.get(component.cryptoProperties.algorithmProperties, "ellipticCurve", "")
+    props := object.get(component.cryptoProperties, "algorithmProperties", {})
+    curve := object.get(props, "ellipticCurve", "")
     curve != ""
-} else := name if {
+} else := curve if {
+    props := object.get(component.cryptoProperties, "algorithmProperties", {})
+    named_group := object.get(props, "namedGroup", "")
+    curve := get_ec_curve_from_text_or_unknown(named_group)
+    curve != "unknown"
+} else := curve if {
+    props := object.get(component.cryptoProperties, "algorithmProperties", {})
+    parameter_set := object.get(props, "parameterSetIdentifier", "")
+    curve := get_ec_curve_from_text_or_unknown(parameter_set)
+    curve != "unknown"
+} else := curve if {
     name := get_name_or_unknown(component)
     name != "unknown"
+    curve := get_ec_curve_from_text_or_unknown(name)
+    curve != "unknown"
+} else := "unknown"
+
+#
+# Extract a known EC curve identifier from loosely formatted text.
+#
+# This covers the ECCG-agreed EC-DLOG curves plus common non-agreed EC curves
+# that should still be reported as curve-specific compliance findings.
+#
+get_ec_curve_from_text_or_unknown(text) := "BrainpoolP256r1" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "brainpoolp256r1")
+} else := "BrainpoolP384r1" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "brainpoolp384r1")
+} else := "BrainpoolP512r1" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "brainpoolp512r1")
+} else := "FRP256v1" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "frp256v1")
+} else := "NIST P-256" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "nistp256")
+} else := "NIST P-256" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "secp256r1")
+} else := "NIST P-256" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "prime256v1")
+} else := "NIST P-256" if {
+    normalized := normalize_ec_curve_name(text)
+    normalized == "p256"
+} else := "NIST P-384" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "nistp384")
+} else := "NIST P-384" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "secp384r1")
+} else := "NIST P-384" if {
+    normalized := normalize_ec_curve_name(text)
+    normalized == "p384"
+} else := "NIST P-521" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "nistp521")
+} else := "NIST P-521" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "secp521r1")
+} else := "NIST P-521" if {
+    normalized := normalize_ec_curve_name(text)
+    normalized == "p521"
+} else := "secp256k1" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "secp256k1")
+} else := "X25519" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "x25519")
+} else := "X448" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "x448")
+} else := "Ed25519" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "ed25519")
+} else := "Ed448" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "ed448")
+} else := "Curve25519" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "curve25519")
+} else := "Curve448" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "curve448")
+} else := "SM2" if {
+    normalized := normalize_ec_curve_name(text)
+    contains(normalized, "sm2")
 } else := "unknown"
 
 

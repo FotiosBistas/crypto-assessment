@@ -236,8 +236,8 @@
     - EC-DLOG primitive was detected with agreed NIST elliptic curve [curve] and is classified as recommended. ECCG note 39-SpecialP applies.
 
 - ECCG-ECDLOG-003:
-    - Severity: warning
-    - EC-DLOG primitive was detected with elliptic curve [curve], which is not listed as an agreed ECCG curve. This does not necessarily mean the code is unsafe, but it should be reviewed for ECCG compliance.
+    - Severity: critical
+    - EC-DLOG primitive was detected with elliptic curve [curve], which is not listed as an agreed ECCG curve. This curve is rejected for ECCG EC-DLOG compliance.
 
 - ECCG-ECDLOG-004:
     - Severity: warning
