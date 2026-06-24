@@ -207,6 +207,14 @@
     - Severity: critical
     - Key combiner scheme [scheme] is not listed in the ECCG agreed key combiner table. This does not mean that your code is unsafe, but it should probably be flagged as non-compliant.
 
+## Asymmetric Constructions
+
+### Agreed Asymmetric Encryption Schemes
+
+- ECCG-AS-ENC-001:
+    - Severity: info/warning/critical
+    - Classifies asymmetric encryption schemes according to the ECCG table: RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) is recommended, RSAES-PKCS1-v1_5 is legacy, and other identifiable asymmetric encryption schemes are rejected as not agreed.
+
 ## Asymmetric Atomic Primitives 
 
 ### RSA Integer Factorization
