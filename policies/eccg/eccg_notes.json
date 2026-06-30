@@ -259,6 +259,58 @@
           "title": "45-QuantumThreat",
           "text": "There exist algorithms leveraging quantum computers, like Shor's algorithm, that break completely the asymmetric primitives these cryptographic constructions are based on. Such attacks may be performed retroactively: the ciphertext can be stored now and decrypted later when a quantum computer becomes available. In contexts where resistance against attacks leveraging quantum computers is required, these cryptographic mechanisms shall not be used without being combined with a quantum resistant mechanism."
         }
+      },
+      "Digital-Signature-Schemes": {
+        "46-Hash": {
+          "category": "general",
+          "title": "46-Hash",
+          "text": "The scheme is agreed provided the underlying hash function is agreed."
+        },
+        "47-DifficultProblem": {
+          "category": "general",
+          "title": "47-DifficultProblem",
+          "text": "The scheme is agreed provided the underlying mathematical problem uses agreed parameters."
+        },
+        "48-PKCSFormatCheck": {
+          "category": "specific",
+          "title": "48-PKCSFormatCheck",
+          "text": "Format checks should be carefully implemented to avoid attacks à la Bleichenbacher."
+        },
+        "49-DSARandom": {
+          "category": "specific",
+          "title": "49-DSARandom",
+          "text": "In DSA and its elliptic curve variants, the signature generation procedure generates a random value. Leakage of per-signature random values used during signature generation poses risks to the confidentiality of the associated long-term keys. Such leakage should therefore be avoided. It is recommended to use a strong random number generator with strong cryptographic post-processing, enhanced backward security, and regular reseeding from a true random source."
+        },
+        "50-QuantumThreat": {
+          "category": "specific",
+          "title": "50-QuantumThreat",
+          "text": "There exist algorithms leveraging quantum computers, like Shor's algorithm, that break completely the asymmetric primitives these cryptographic constructions are based on. In contexts where resistance against attacks leveraging quantum computers is required, these cryptographic mechanisms should not be used without being combined with a quantum resistant mechanism."
+        },
+        "51-Hybridization": {
+          "category": "specific",
+          "title": "51-Hybridization",
+          "text": "These cryptographic mechanisms are based on novel asymmetric primitives. To provide assurance against regression of robustness, they should not be used in a standalone way to provide the intended security functionality, but should be combined with a classical secure cryptographic mechanism."
+        },
+        "52-SLH-DSAParameters": {
+          "category": "specific",
+          "title": "52-SLH-DSAParameters",
+          "text": "The parameters defined in FIPS 205, Table 1 with security level 3 and 5 are agreed."
+        },
+        "53-OptionalHybridization": {
+          "category": "specific",
+          "title": "53-OptionalHybridization",
+          "text": "In order to provide additional assurance, hash-based asymmetric cryptographic mechanisms can be combined with a classical cryptographic mechanism to provide the intended security functionality. They may however also be used in a standalone way."
+        },
+        "54-StateManagement": {
+          "category": "specific",
+          "title": "54-StateManagement",
+          "text": "The state of the signature algorithm is a critical data that must be protected in integrity and against replay attacks."
+        },
+        "55-ML-DSAParameters": {
+          "category": "specific",
+          "title": "55-ML-DSAParameters",
+          "text": "It is recommended to use the highest possible standardised parameter size, either ML-DSA-87 or ML-DSA-65."
+        }
       }
     }
   }

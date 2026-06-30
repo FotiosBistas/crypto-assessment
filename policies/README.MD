@@ -215,6 +215,14 @@
     - Severity: info/warning/critical
     - Classifies asymmetric encryption schemes according to the ECCG table: RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) is recommended, RSAES-PKCS1-v1_5 is legacy, and other identifiable asymmetric encryption schemes are rejected as not agreed.
 
+### Agreed Digital Signature Schemes
+
+- ECCG-DG-001:
+    - Severity: critical
+    - Digital signature scheme [scheme] is not listed as an ECCG recommended digital signature scheme. Recommended schemes are RSASSA-PSS, KCDSA, Schnorr, DSA, EC-KCDSA, ECDSA / EC-DSA, EC-GDSA, EC-Schnorr, ML-DSA, XMSS, LMS, and SLH-DSA.
+    - Severity: warning
+    - RSASSA-PKCS1-v1_5 is legacy in the ECCG digital signature table and should be reviewed or phased out in favor of a recommended scheme.
+
 ## Asymmetric Atomic Primitives 
 
 ### RSA Integer Factorization

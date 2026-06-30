@@ -76,6 +76,11 @@ policy_sources := [
         "findings": data.cbom.eccg.asymmetric_constructions.asymmetric_encryption.findings
     },
     {
+        "section": "Asymmetric Constructions",
+        "subsection": "Digital Signature Schemes",
+        "findings": data.cbom.eccg.asymmetric_constructions.digital_signature.findings
+    },
+    {
         "section": "Asymmetric Atomic Primitives",
         "subsection": "RSA Integer Factorization",
         "findings": data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.findings
