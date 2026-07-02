@@ -77,6 +77,11 @@ policy_sources := [
     },
     {
         "section": "Asymmetric Constructions",
+        "subsection": "Key Establishment and Key Encapsulation Schemes",
+        "findings": data.cbom.eccg.asymmetric_constructions.key_establishment_key_encapsulation.findings
+    },
+    {
+        "section": "Asymmetric Constructions",
         "subsection": "Digital Signature Schemes",
         "findings": data.cbom.eccg.asymmetric_constructions.digital_signature.findings
     },

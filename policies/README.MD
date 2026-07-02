@@ -215,6 +215,16 @@
     - Severity: info/warning/critical
     - Classifies asymmetric encryption schemes according to the ECCG table: RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) is recommended, RSAES-PKCS1-v1_5 is legacy, and other identifiable asymmetric encryption schemes are rejected as not agreed.
 
+### Agreed Key Establishment and Key Encapsulation Schemes
+
+- ECCG-KEE-001:
+    - Severity: critical
+    - Key establishment or key encapsulation scheme [scheme] is not one of the recommended schemes. DH, DLIES-KEM, EC-DH, and ECIES-KEM are the only recommended key establishment and key encapsulation schemes.
+
+- ECCG-KEE-002:
+    - Severity: warning
+    - The parties that participate in a key establishment scheme must be authenticated. CBOM data may not be enough to prove this obligation.
+
 ### Agreed Digital Signature Schemes
 
 - ECCG-DG-001:

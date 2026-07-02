@@ -177,7 +177,7 @@ rsa_modulus_notes(n) := note if {
 # Detection strategy:
 # - Prefer explicit FF-DLOG indicators when present.
 # - Detect standardized group names such as:
-#     • FFDH / FFDHE (CycloneDX pattern: FFDH(E)-{namedGroup})
+#     • FFDH / FFDHE (CycloneDX pattern: FFDH(E)-{parameterSetIdentifier})
 #     • FFDHE (including TLS named groups like ffdhe2048)
 #     • MODP
 # - Fall back to finite-field Diffie-Hellman naming:
@@ -291,9 +291,8 @@ is_ffdlog_primitive(component) if {
 # Detection order:
 # - component.name
 # - algorithmProperties.algorithmFamily
-# - algorithmProperties.namedGroup or parameterSetIdentifier, for
-#   registry-style values that include the family name, such as
-#   "ffdhe3072".
+# - algorithmProperties.parameterSetIdentifier, for registry-style values
+#   that include the family name, such as "ffdhe3072".
 # ---------------------------------------------------------
 #
 get_ffdlog_group_family_or_unknown(component) := "MODP" if {
@@ -314,15 +313,6 @@ get_ffdlog_group_family_or_unknown(component) := "MODP" if {
     family := object.get(props, "algorithmFamily", "")
     normalized_family := normalize_crypto_name(family)
     contains(normalized_family, "ffdhe")
-} else := "FFDHE" if {
-    props := component.cryptoProperties.algorithmProperties
-    family := object.get(props, "algorithmFamily", "")
-    normalized_family := normalize_crypto_name(family)
-    normalized_family == "ffdh"
-
-    named_group := object.get(props, "namedGroup", "")
-    normalized_named_group := normalize_crypto_name(named_group)
-    contains(normalized_named_group, "ffdhe")
 } else := "FFDHE" if {
     props := component.cryptoProperties.algorithmProperties
     family := object.get(props, "algorithmFamily", "")
@@ -363,9 +353,9 @@ is_eccg_agreed_ffdlog_group_family(component) if {
 # - numeric algorithmProperties.parameterSetIdentifier
 #
 # Fallback:
-# - known standardized group-size tokens in component.name,
-#   algorithmProperties.namedGroup, or parameterSetIdentifier,
-#   such as "ffdhe3072" or "modp2048".
+# - known standardized group-size tokens in component.name or
+#   algorithmProperties.parameterSetIdentifier, such as "ffdhe3072"
+#   or "modp2048".
 # ---------------------------------------------------------
 #
 get_ffdlog_group_bits_or_unknown(component) := bits if {
@@ -392,11 +382,6 @@ ffdlog_group_size_token_present(component, token) if {
     parameter_set := object.get(props, "parameterSetIdentifier", "")
     normalized_parameter_set := normalize_crypto_name(parameter_set)
     contains(normalized_parameter_set, token)
-} else if {
-    props := component.cryptoProperties.algorithmProperties
-    named_group := object.get(props, "namedGroup", "")
-    normalized_named_group := normalize_crypto_name(named_group)
-    contains(normalized_named_group, token)
 }
 
 FFDLOG_SECTION := "Asymmetric-Atomic-Primitives"

@@ -1,7 +1,10 @@
 package cbom.eccg.asymmetric_constructions.helpers
 
-import data.cbom.eccg.helpers.get_name_or_unknown
 import data.cbom.eccg.helpers.normalize_crypto_name
+import data.cbom.eccg.helpers.normalized_algorithm_identifier_text
+import data.cbom.eccg.helpers.get_name_or_unknown
+import data.cbom.eccg.helpers.is_algorithm_component
+import data.cbom.eccg.helpers.is_key_establishment_or_key_encapsulation_primitive
 
 RECOMMENDED_ASYMMETRIC_ENCRYPTION_SCHEME := "RSAES-OAEP (PKCS #1 v2.2 / RFC 8017)"
 LEGACY_ASYMMETRIC_ENCRYPTION_SCHEME := "RSAES-PKCS1-v1_5 (PKCS #1 v1.5 / RFC 8017)"
@@ -18,11 +21,10 @@ asymmetric_encryption_text(component) := text if {
     props := object.get(component.cryptoProperties, "algorithmProperties", {})
 
     text := sprintf(
-        "%v %v %v %v %v %v",
+        "%v %v %v %v %v",
         [
             object.get(component, "name", ""),
             object.get(props, "algorithmFamily", ""),
-            object.get(props, "scheme", ""),
             object.get(props, "padding", ""),
             object.get(props, "mode", ""),
             object.get(props, "parameterSetIdentifier", ""),
@@ -319,3 +321,90 @@ get_eccg_canonical_signature_scheme_or_unknown(name) := "RSASSA-PSS" if {
     normalized_name := normalize_signature_scheme_name(name)
     is_eccg_legacy_signature_scheme_name(normalized_name)
 } else := "unknown"
+
+KEY_ESTABLISHMENT_SCHEME_DISPLAY_NAMES := [
+    "DH (SP 800-56A, ISO 11770-3)",
+    "DLIES-KEM (ISO 18033-2)",
+    "EC-DH (SP 800-56A, ISO 11770-3)",
+    "ECIES-KEM (ISO 18033-2)"
+]
+
+key_establishment_scheme_display_names := KEY_ESTABLISHMENT_SCHEME_DISPLAY_NAMES
+
+key_establishment_scheme_display_names_text := concat(", ", KEY_ESTABLISHMENT_SCHEME_DISPLAY_NAMES)
+
+is_key_establishment_or_key_encapsulation_scheme(component) if {
+    is_key_establishment_or_key_encapsulation_primitive(component)
+} else if {
+    is_algorithm_component(component)
+    scheme := get_eccg_canonical_key_establishment_scheme_or_unknown(component)
+    scheme != "unknown"
+}
+
+is_eccg_agreed_key_establishment_scheme(component) if {
+    scheme := get_eccg_canonical_key_establishment_scheme_or_unknown(component)
+    scheme in {"DH", "DLIES-KEM", "EC-DH", "ECIES-KEM"}
+}
+
+get_eccg_canonical_key_establishment_scheme_or_unknown(component) := "DLIES-KEM" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "dlies")
+} else := "ECIES-KEM" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "ecies")
+} else := "ML-KEM" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "mlkem")
+} else := "FrodoKEM" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "frodokem")
+} else := "FrodoKEM" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "frodo")
+    contains(normalized, "kem")
+} else := "EC-DH" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "ecdh")
+} else := "EC-DH" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "ecdhe")
+} else := "EC-DH" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "ecdiffiehellman")
+} else := "x25519" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "x25519")
+} else := "x448" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "x448")
+} else := "DH" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "ffdh")
+} else := "DH" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "ffdhe")
+} else := "DH" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "diffiehellman")
+    not contains(normalized, "ecdiffiehellman")
+} else := "DH" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    startswith(normalized, "dh")
+    not contains(normalized, "ecdh")
+} else := "DH" if {
+    normalized := normalized_algorithm_identifier_text(component)
+    contains(normalized, "dhe")
+    not contains(normalized, "ecdhe")
+} else := "unknown"
+
+get_eccg_canonical_key_establishment_scheme_or_original(component) := scheme if {
+    canonical := get_eccg_canonical_key_establishment_scheme_or_unknown(component)
+    canonical != "unknown"
+    scheme := canonical
+} else := scheme if {
+    scheme := get_name_or_unknown(component)
+}
+
+get_key_establishment_scheme_display_name(component) := display_name if {
+    display_name := get_eccg_canonical_key_establishment_scheme_or_original(component)
+}

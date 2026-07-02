@@ -600,6 +600,29 @@ normalize_crypto_name(name) := normalized if {
     normalized := replace(no_open_parens, ")", "")
 }
 
+#
+# ---------------------------------------------------------
+# Helper: normalize_crypto_identifier
+#
+# Purpose:
+# Normalize registry-style cryptographic identifiers that may include
+# separators used by CycloneDX names and parameter-set strings.
+#
+# This extends normalize_crypto_name by also removing:
+# - slash "/"
+# - underscore "_"
+# - dot "."
+# - hash "#"
+# ---------------------------------------------------------
+#
+normalize_crypto_identifier(name) := normalized if {
+    base := normalize_crypto_name(name)
+    no_slash := replace(base, "/", "")
+    no_underscore := replace(no_slash, "_", "")
+    no_dot := replace(no_underscore, ".", "")
+    normalized := replace(no_dot, "#", "")
+}
+
 
 is_public_key_primitive(component) if {
     component.cryptoProperties.assetType == "algorithm"
@@ -620,11 +643,15 @@ is_public_key_primitive(component) if {
 # 1. The algorithm primitive is public-key encryption:
 #      primitive == "pke"
 #
-# 2. The algorithm exposes a key-agreement function:
-#      cryptoFunctions contains "key-agree"
+# 2. The algorithm primitive is key agreement:
+#      primitive == "key-agree"
 #
-# 3. The algorithm exposes a signature function:
-#      cryptoFunctions contains "signature"
+# 3. The algorithm primitive is key encapsulation:
+#      primitive == "kem"
+#
+# 4. The algorithm primitive is signature, or it exposes signature functions:
+#      primitive == "signature"
+#      cryptoFunctions contains "sign" or "verify"
 #
 # Rationale:
 # CycloneDX / CBOM representations may not encode all asymmetric
@@ -632,8 +659,9 @@ is_public_key_primitive(component) if {
 #
 # For example:
 # - RSA encryption may appear as primitive = "pke"
-# - ECDH / FFDHE / X25519 may appear through cryptoFunctions = "key-agree"
-# - ECDSA / EdDSA / RSA signatures may appear through cryptoFunctions = "signature"
+# - ECDH / FFDHE / X25519 may appear as primitive = "key-agree"
+# - ML-KEM / other KEMs may appear as primitive = "kem"
+# - ECDSA / EdDSA / RSA signatures may appear as primitive = "signature"
 #
 # Therefore, checking only primitive == "pke" would miss many
 # asymmetric algorithms, especially key-agreement and signature schemes.
@@ -661,15 +689,33 @@ is_asymmetric_algorithm(component) if {
 } else if {
     component.cryptoProperties.assetType == "algorithm"
 
-    some fn in object.get(component.cryptoProperties.algorithmProperties, "cryptoFunctions", [])
+    primitive := lower(object.get(component.cryptoProperties.algorithmProperties, "primitive", ""))
 
-    lower(fn) == "key-agree"
+    primitive == "key-agree"
+} else if {
+    component.cryptoProperties.assetType == "algorithm"
+
+    primitive := lower(object.get(component.cryptoProperties.algorithmProperties, "primitive", ""))
+
+    primitive == "kem"
+} else if {
+    component.cryptoProperties.assetType == "algorithm"
+
+    primitive := lower(object.get(component.cryptoProperties.algorithmProperties, "primitive", ""))
+
+    primitive == "signature"
 } else if {
     component.cryptoProperties.assetType == "algorithm"
 
     some fn in object.get(component.cryptoProperties.algorithmProperties, "cryptoFunctions", [])
 
-    lower(fn) == "signature"
+    lower(fn) == "sign"
+} else if {
+    component.cryptoProperties.assetType == "algorithm"
+
+    some fn in object.get(component.cryptoProperties.algorithmProperties, "cryptoFunctions", [])
+
+    lower(fn) == "verify"
 }
 
 #
@@ -709,9 +755,8 @@ normalize_ec_curve_name(curve) := normalized if {
 #
 # Detection order:
 # 1. cryptoProperties.algorithmProperties.ellipticCurve
-# 2. cryptoProperties.algorithmProperties.namedGroup
-# 3. cryptoProperties.algorithmProperties.parameterSetIdentifier
-# 4. Recognizable curve token in component.name
+# 2. cryptoProperties.algorithmProperties.parameterSetIdentifier
+# 3. Recognizable curve token in component.name
 #
 # Rationale:
 # CycloneDX 1.7 provides algorithmProperties.ellipticCurve,
@@ -727,11 +772,6 @@ get_ec_curve_or_unknown(component) := curve if {
     props := object.get(component.cryptoProperties, "algorithmProperties", {})
     curve := object.get(props, "ellipticCurve", "")
     curve != ""
-} else := curve if {
-    props := object.get(component.cryptoProperties, "algorithmProperties", {})
-    named_group := object.get(props, "namedGroup", "")
-    curve := get_ec_curve_from_text_or_unknown(named_group)
-    curve != "unknown"
 } else := curve if {
     props := object.get(component.cryptoProperties, "algorithmProperties", {})
     parameter_set := object.get(props, "parameterSetIdentifier", "")
@@ -974,6 +1014,89 @@ get_asset_type(component) := object.get(
     "assetType",
     "unknown"
 )
+
+#
+# Return algorithmProperties for a component.
+#
+# This object is present when cryptoProperties.assetType is "algorithm".
+# If the component is not an algorithm, or if the field is missing, this
+# returns an empty object.
+#
+get_algorithm_properties(component) := object.get(
+    get_crypto_properties(component),
+    "algorithmProperties",
+    {}
+)
+
+#
+# True when a component is a CycloneDX cryptographic algorithm component.
+#
+is_algorithm_component(component) if {
+    get_asset_type(component) == "algorithm"
+}
+
+#
+# Return a schema-shaped text string containing the common fields used to
+# identify a cryptographic algorithm across scanner outputs.
+#
+# Uses only CycloneDX algorithmProperties fields:
+# - primitive
+# - algorithmFamily
+# - parameterSetIdentifier
+# - ellipticCurve
+# - curve (deprecated)
+#
+get_algorithm_identifier_text(component) := text if {
+    props := get_algorithm_properties(component)
+
+    text := sprintf(
+        "%v %v %v %v %v %v",
+        [
+            object.get(component, "name", ""),
+            object.get(props, "primitive", ""),
+            object.get(props, "algorithmFamily", ""),
+            object.get(props, "parameterSetIdentifier", ""),
+            object.get(props, "ellipticCurve", ""),
+            object.get(props, "curve", "")
+        ]
+    )
+}
+
+#
+# Return normalized algorithm-identification text.
+#
+normalized_algorithm_identifier_text(component) := normalized if {
+    text := get_algorithm_identifier_text(component)
+    normalized := normalize_crypto_identifier(text)
+}
+
+#
+# True when an algorithm component uses the CycloneDX key-agreement primitive.
+#
+is_key_agreement_primitive(component) if {
+    is_algorithm_component(component)
+    props := get_algorithm_properties(component)
+    lower(object.get(props, "primitive", "")) == "key-agree"
+}
+
+#
+# True when an algorithm component uses the CycloneDX KEM primitive.
+#
+is_kem_primitive(component) if {
+    is_algorithm_component(component)
+    props := get_algorithm_properties(component)
+    lower(object.get(props, "primitive", "")) == "kem"
+}
+
+#
+# True when an algorithm component is modeled by CycloneDX as key agreement or
+# key encapsulation.
+#
+is_key_establishment_or_key_encapsulation_primitive(component) if {
+    is_key_agreement_primitive(component)
+} else if {
+    is_kem_primitive(component)
+}
 
 #
 # Return the type of related cryptographic material.
