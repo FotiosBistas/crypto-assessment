@@ -1,5 +1,8 @@
 # ECCG Cryptographic Requirements 
 
+Detailed notes on CBOMkit detection limits, separate Semgrep source-code
+signals, and manual-review requirements live in [eccg/README.md](eccg/README.md).
+
 ## Symmetric Atomic Primitives 
 
 ### Block Ciphers 
