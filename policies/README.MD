@@ -1,5 +1,8 @@
 # ECCG Cryptographic Requirements 
 
+Detailed notes on CBOMkit detection limits, separate Semgrep source-code
+signals, and manual-review requirements live in [eccg/README.md](eccg/README.md).
+
 ## Symmetric Atomic Primitives 
 
 ### Block Ciphers 
@@ -207,27 +210,49 @@
     - Severity: critical
     - Key combiner scheme [scheme] is not listed in the ECCG agreed key combiner table. This does not mean that your code is unsafe, but it should probably be flagged as non-compliant.
 
+## Asymmetric Constructions
+
+### Agreed Asymmetric Encryption Schemes
+
+- ECCG-AS-ENC-001:
+    - Severity: info/warning/critical
+    - Classifies asymmetric encryption schemes according to the ECCG table: RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) is recommended, RSAES-PKCS1-v1_5 is legacy, and other identifiable asymmetric encryption schemes are rejected as not agreed.
+
+### Agreed Key Establishment and Key Encapsulation Schemes
+
+- ECCG-KEE-001:
+    - Severity: critical
+    - Key establishment or key encapsulation scheme [scheme] is not one of the recommended schemes. DH, DLIES-KEM, EC-DH, and ECIES-KEM are the only recommended key establishment and key encapsulation schemes.
+
+- ECCG-KEE-002:
+    - Severity: warning
+    - The parties that participate in a key establishment scheme must be authenticated. CBOM data may not be enough to prove this obligation.
+
+### Agreed Digital Signature Schemes
+
+- ECCG-DG-001:
+    - Severity: critical
+    - Digital signature scheme [scheme] is not listed as an ECCG recommended digital signature scheme. Recommended schemes are RSASSA-PSS, KCDSA, Schnorr, DSA, EC-KCDSA, ECDSA / EC-DSA, EC-GDSA, EC-Schnorr, ML-DSA, XMSS, LMS, and SLH-DSA.
+    - Severity: warning
+    - RSASSA-PKCS1-v1_5 is legacy in the ECCG digital signature table and should be reviewed or phased out in favor of a recommended scheme.
+
 ## Asymmetric Atomic Primitives 
 
 ### RSA Integer Factorization
 
 - ECCG-RSA-001:
-    - Severity: info
-    - RSA primitive was detected with modulus size n=[x] bits and is classified as recommended. The ECCG exponent condition log2(e) > 16 could not be verified from CycloneDX data.
-
-- ECCG-RSA-002:
-    - Severity: critical
-    - RSA primitive was detected with Legacy[2025] modulus size n=[x] bits ( 1900 <= bits < 3000 ). The ECCG exponent condition log2(e) > 16 could not be verified from CycloneDX data.
+    - Severity: warning/error/critical
+    - RSA modulus size must be at least 3000 bits and must satisfy log2(e) > 16. RSA sizes 1900 <= n < 3000 are legacy-only L[2025], and missing modulus data is reported as inconclusive because the CBOM cannot verify the RSA size or exponent requirements.
 
 ### Agreed FF-DLOG Parameters
 
 - ECCG-FFDLOG-001:
-    - Severity: info
-    - FF-DLOG primitive was detected with group size p=[x] bits and is classified as recommended.
+    - Severity: critical
+    - FF-DLOG primitive [scheme] is not identifiable as an agreed MODP (RFC3526) or FFDHE (RFC7919) group.
 
 - ECCG-FFDLOG-002:
-    - Severity: critical
-    - FF-DLOG primitive was detected with legacy group size p=[x] bits and is classified as Legacy[2025].
+    - Severity: warning/error/critical
+    - MODP and FFDHE group size must be at least 3072 bits. 2048-bit MODP/FFDHE groups are legacy-only L[2025], and missing group-size data is reported as inconclusive.
 
 ### Agreed Elliptic Curve Parameters
 
@@ -240,8 +265,8 @@
     - EC-DLOG primitive was detected with agreed NIST elliptic curve [curve] and is classified as recommended. ECCG note 39-SpecialP applies.
 
 - ECCG-ECDLOG-003:
-    - Severity: warning
-    - EC-DLOG primitive was detected with elliptic curve [curve], which is not listed as an agreed ECCG curve. This does not necessarily mean the code is unsafe, but it should be reviewed for ECCG compliance.
+    - Severity: critical
+    - EC-DLOG primitive was detected with elliptic curve [curve], which is not listed as an agreed ECCG curve. This curve is rejected for ECCG EC-DLOG compliance.
 
 - ECCG-ECDLOG-004:
     - Severity: warning

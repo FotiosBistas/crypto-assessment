@@ -1,0 +1,52 @@
+rules:
+  - id: python.crypto.asymmetric.rsaes-oaep
+    languages: [python]
+    severity: INFO
+    message: >
+      RSAES-OAEP detected. ECCG-AS-ENC-001 classifies RSAES-OAEP
+      (PKCS #1 v2.2 / RFC 8017) as the recommended asymmetric encryption
+      scheme.
+    metadata:
+      category: security
+      policy_section: Asymmetric Constructions / Asymmetric Encryption Schemes
+      eccg_rule: ECCG-AS-ENC-001
+      primitive: RSA
+      scheme: RSAES-OAEP
+      classification: R
+      status: recommended
+      confidence: HIGH
+      tags: [crypto, asymmetric, rsa, rsaes-oaep, oaep, eccg]
+    pattern-either:
+      - pattern: $KEY.encrypt(..., padding.OAEP(...))
+      - pattern: $KEY.decrypt(..., padding.OAEP(...))
+      - pattern: $KEY.encrypt(..., OAEP(...))
+      - pattern: $KEY.decrypt(..., OAEP(...))
+      - pattern: padding.OAEP(...)
+      - pattern: cryptography.hazmat.primitives.asymmetric.padding.OAEP(...)
+      - pattern: OAEP(...)
+
+  - id: python.crypto.asymmetric.rsaes-pkcs1-v1-5
+    languages: [python]
+    severity: CRITICAL
+    message: >
+      RSAES-PKCS1-v1_5 detected. ECCG-AS-ENC-001 classifies RSAES-PKCS1-v1_5
+      (PKCS #1 v1.5 / RFC 8017) as legacy; RSAES-OAEP is the only recommended
+      asymmetric encryption scheme.
+    metadata:
+      category: security
+      policy_section: Asymmetric Constructions / Asymmetric Encryption Schemes
+      eccg_rule: ECCG-AS-ENC-001
+      primitive: RSA
+      scheme: RSAES-PKCS1-v1_5
+      classification: L
+      status: legacy
+      confidence: HIGH
+      tags: [crypto, asymmetric, rsa, rsaes-pkcs1-v1-5, pkcs1v15, eccg]
+    pattern-either:
+      - pattern: $KEY.encrypt(..., padding.PKCS1v15(...))
+      - pattern: $KEY.decrypt(..., padding.PKCS1v15(...))
+      - pattern: $KEY.encrypt(..., PKCS1v15(...))
+      - pattern: $KEY.decrypt(..., PKCS1v15(...))
+      - pattern: padding.PKCS1v15(...)
+      - pattern: cryptography.hazmat.primitives.asymmetric.padding.PKCS1v15(...)
+      - pattern: PKCS1v15(...)
