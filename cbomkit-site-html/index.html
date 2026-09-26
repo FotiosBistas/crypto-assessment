@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CRA Compliance Checker</title>
     <link rel="stylesheet" href="./styles.css" />
-    <script type="module" src="./app.js?v=3"></script>
+    <script type="module" src="./app.js?v=4"></script>
   </head>
 
   <body>
@@ -29,9 +29,6 @@
     <main class="page-shell">
       <section class="intro-card">
         <h2>Check repository compliance</h2>
-        <p>
-          Enter a Git repository URL and run the CBOM, REGO, and Semgrep checks.
-        </p>
       </section>
 
       <section class="checker-card" aria-labelledby="checker-title">
@@ -99,15 +96,19 @@
             <button id="checkButton" class="primary-button" type="submit">
               Check compliance
             </button>
+            <input type="file" id="uploadCBOM" accept=".json,application/json" hidden />
+            <button id="uploadCbomButton" class="primary-button" type="button">
+              Upload CBOM
+            </button>
           </div>
         </form>
 
         <div id="status" class="status" role="status">Status: Ready</div>
-        <div id="errorBox" class="error-box" hidden></div>
+        <div id="errorBox" class="error-box" role="alert" hidden></div>
       </section>
 
       <section id="results" class="results" hidden>
-        <h2>Compliance result</h2>
+        <h2 id="resultsTitle">Compliance result</h2>
 
         <div id="complianceBanner"></div>
         <div id="summary" class="summary"></div>
@@ -121,7 +122,7 @@
             disabled
             style="display: none"
           >
-            Download generated CBOM
+            Download CBOM
           </button>
         
           <button id="toggleFindingsButton" class="secondary-button" type="button">
