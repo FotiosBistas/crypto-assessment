@@ -16,6 +16,12 @@ import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_3des_component
 import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_agreed_block_cipher_component
 import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_allowed_aes_key_size
 
+import data.cbom.eccg.symmetric_atomic_primitives.constants.AGREED_BLOCK_CIPHER_ALGORITHM_NAMES
+import data.cbom.eccg.symmetric_atomic_primitives.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER
+import data.cbom.eccg.symmetric_atomic_primitives.constants.TRIPLE_DES_REQUIRED_KEY_BITS
+import data.cbom.eccg.symmetric_atomic_primitives.constants.TRIPLE_DES_LEGACY_MARKER
+import data.cbom.eccg.symmetric_atomic_primitives.constants.AES_ALLOWED_KEY_SIZES
+
 #
 # Overall result:
 # - compliant = true  => no findings were produced
@@ -27,12 +33,16 @@ compliant if count(findings) == 0
 
 NOTE_SECTION := "Symmetric-Atomic-Primitives"
 NOTE_SUBSECTION := "Block-Ciphers"
-_3DES_LEGACY_MARKER := "L[2027]"
 
-#
-# findings is a computed collection of policy violations / warnings.
-# Each rule below can add one finding object to this collection.
-#
+
+block_cipher_metadata(component) := {
+    "primitive": get_primitive_or_unknown(component),
+    # this is the max security of the algorithm not the actual key bits
+    "keyBits": get_parameter_set_identifier_to_number_or_unknown(component),
+    "mode": get_mode_or_unknown(component),
+    "minimumRecommendedBitsForQuantumSensitiveContext": MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER,
+}
+
 
 #
 # Rule ECCG-BLOCK-001
@@ -48,21 +58,16 @@ findings contains finding if {
     finding := build_finding(
         "ECCG-BLOCK-001",
         "critical",
-        sprintf("Block cipher '%s' is not in the agreed block cipher list. AES is the only recommended block cipher.", [component.name]),
+        sprintf("Block cipher '%s' is not in the agreed block cipher list. The agreed block ciphers are the following: %s", [component.name, AGREED_BLOCK_CIPHER_ALGORITHM_NAMES]),
         component,
-        {
-            "primitive": get_primitive_or_unknown(component),
-            #TODO these are not the key bits
-            "keyBits": get_parameter_set_identifier_to_number_or_unknown(component),
-            "mode": get_mode_or_unknown(component)
-        }
+        block_cipher_metadata(component),
     )
 }
 
 #
 # Rule ECCG-BLOCK-002
 # AES is only agreed with key sizes 128, 192, or 256 bits.
-# TODO: this rule won't ever fire correctly because we can't correctly detect the keySize through the CBOM kit
+# the key sizes here are the maximum security bits 
 #
 findings contains finding if {
     some component_index
@@ -75,15 +80,16 @@ findings contains finding if {
         "ECCG-BLOCK-002",
         "high",
         sprintf(
-            "AES uses a non-agreed key size: %v bits. Allowed sizes are 128, 192, or 256 bits",
-            [get_parameter_set_identifier_to_number_or_unknown(component)]
+            "AES uses a non-agreed key size: %v bits. Allowed sizes are %v bits",
+            [get_parameter_set_identifier_to_number_or_unknown(component), AES_ALLOWED_KEY_SIZES]
         ),
         component,
-        {
-            "allowedKeySizes": [128, 192, 256],
-            "actualKeyBits": get_parameter_set_identifier_to_number_or_unknown(component),
-            "mode": get_mode_or_unknown(component)
-        }
+        object.union(
+            block_cipher_metadata(component),
+            {
+                "allowedKeySizes": AES_ALLOWED_KEY_SIZES
+            }
+        )
     )
 }
 
@@ -98,9 +104,9 @@ findings contains finding if {
     is_3des_component(component)
 
 
-    status := legacy_marker_status(_3DES_LEGACY_MARKER)
+    status := legacy_marker_status(TRIPLE_DES_LEGACY_MARKER)
     severity := legacy_status_severity(status)
-    message := legacy_status_message("3DES", _3DES_LEGACY_MARKER, status)
+    message := legacy_status_message("3DES", TRIPLE_DES_LEGACY_MARKER, status)
 
     note_ids := ["2-SmallBlockSize", "3-QuantumThreat"]
     notes := [ { "noteId": id, "noteTitle": note.title, "noteText": note.text } | 
@@ -112,57 +118,62 @@ findings contains finding if {
         severity,
         message,
         component,
-        {
-            "status": status,
-            "legacyMarker": _3DES_LEGACY_MARKER,
-            "evaluationYear": evaluation_year,
-            "notes": notes,
-            "mode": get_mode_or_unknown(component)
-        }
+        object.union(
+            block_cipher_metadata(component),  
+            {
+                "status": status,
+                "legacyMarker": TRIPLE_DES_LEGACY_MARKER,
+                "evaluationYear": evaluation_year,
+                "notes": notes,
+            }
+        )
     )
 }
 
 #
 # Rule ECCG-BLOCK-004
 # Triple-DES / 3DES must use a 168-bit key size according to the rule set.
-# TODO: this rule won't ever fire correctly because we can't correctly detect the keySize through the CBOM kit
+# this is the maximum security bits not the key size
 #
 findings contains finding if {
     component := input.components[component_index]
 
     is_3des_component(component)
 
-    status := legacy_marker_status(_3DES_LEGACY_MARKER)
+    status := legacy_marker_status(TRIPLE_DES_LEGACY_MARKER)
     severity := legacy_status_severity(status)
-    message := legacy_status_message("3DES", _3DES_LEGACY_MARKER, status)
-    #TODO these are not the key bits
-    get_parameter_set_identifier_to_number_or_unknown(component) != 168
+    message := legacy_status_message("3DES", TRIPLE_DES_LEGACY_MARKER, status)
+    # these are the maximum security bits not the key bits
+    get_parameter_set_identifier_to_number_or_unknown(component) != TRIPLE_DES_REQUIRED_KEY_BITS
 
     finding := build_finding(
         "ECCG-BLOCK-004",
         severity,
         sprintf(
-            "3DES uses a non-agreed key size: %v bits. Required size is 168 bits. %s",
-            #TODO these are not the key bits
-            [get_parameter_set_identifier_to_number_or_unknown(component), message],
+            "3DES uses a non-agreed key size: %v bits. Required size is %d bits. %s. Note that these bits are the maximum security. Having an even smaller key size is even worse.",
+            [
+                get_parameter_set_identifier_to_number_or_unknown(component), 
+                TRIPLE_DES_REQUIRED_KEY_BITS, 
+                message
+            ],
         ),
         component,
-        {
-            "status": status,
-            "legacyMarker": _3DES_LEGACY_MARKER,
-            "evaluationYear": evaluation_year,
-            "requiredKeyBits": 168,
-            "actualKeyBits": get_parameter_set_identifier_to_number_or_unknown(component),
-            "mode": object.get(component.cryptoProperties.algorithmProperties, "mode", "")
-        }
+        object.union(
+            block_cipher_metadata(component),
+            {
+                "status": status,
+                "legacyMarker": TRIPLE_DES_LEGACY_MARKER,
+                "evaluationYear": evaluation_year,
+                "requiredKeyBits": TRIPLE_DES_REQUIRED_KEY_BITS,
+            }
+        )
     )
 }
 
 
 #
 # Rule ECCG-BLOCK-005
-# In quantum-sensitive contexts, agreed block ciphers below 192 bits are discouraged.
-# TODO: this won't ever fire correctly due to parameterSetIdentifier
+# In quantum-sensitive contexts, agreed block ciphers below maximum security 192 bits are discouraged.
 #
 findings contains finding if {
 
@@ -171,7 +182,7 @@ findings contains finding if {
 
     is_block_cipher_primitive(component)
     is_agreed_block_cipher_component(component)
-    get_parameter_set_identifier_to_number_or_unknown(component) < 192
+    get_parameter_set_identifier_to_number_or_unknown(component) < MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER
 
     note_id :=  "3-QuantumThreat"
 
@@ -181,15 +192,15 @@ findings contains finding if {
         "ECCG-BLOCK-005",
         "medium",
         sprintf(
-            "Cipher '%s' uses %v-bit keying, which is below 192 bits and should be avoided where resistance to quantum attacks is required",
-            [component.name, get_parameter_set_identifier_to_number_or_unknown(component)]
+            "Cipher '%s' uses %v-bit keying, which is below %d bits and should be avoided where resistance to quantum attacks is required. Note that these bits are the maximum security. Having an even smaller key size is even worse.",
+            [component.name, get_parameter_set_identifier_to_number_or_unknown(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER]
         ),
         component,
-        {
-            "notes": note,
-            "minimumRecommendedBitsForQuantumSensitiveContext": 192,
-            "actualKeyBits":get_parameter_set_identifier_to_number_or_unknown(component),
-            "mode": get_mode_or_unknown(component)
-        }
+        object.union(
+            block_cipher_metadata(component),
+            {
+                "notes": note,
+            }
+        )
     )
 }

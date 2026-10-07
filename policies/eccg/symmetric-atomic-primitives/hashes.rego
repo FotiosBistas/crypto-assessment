@@ -16,7 +16,9 @@ import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_sha224
 import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_sha512_224
 import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_legacy_hash_component
 import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_agreed_hash_component
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.agreed_hash_algorithm_names
+
+import data.cbom.eccg.symmetric_atomic_primitives.constants.AGREED_HASH_ALGORITHM_NAMES
+import data.cbom.eccg.symmetric_atomic_primitives.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH
 
 default compliant := true
 
@@ -28,10 +30,15 @@ NOTE_SUBSECTION := "Hash-Functions"
 SHA224_LEGACY_MARKER := "L[2025]"
 SHA512_224_LEGACY_MARKER := "L[2025]"
 
+hash_primitive_metadata(component) := {
+    "hashBits": get_parameter_set_identifier_to_number_or_unknown(component),
+    "minimumRecommendedHashBitsForQuantumSensitiveContext": MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH,
+}
+
 #
 # Rule ECCG-HASH-003
 # SHA-224 is legacy-only (L[2025]).
-# TODO: hashBits won't ever be correct because get_parameter_set_identifier_to_number_or_unknown
+# hashBits are the maximum security bits
 #
 findings contains finding if {
     some component_index
@@ -49,12 +56,14 @@ findings contains finding if {
         severity,
         message,
         component,
-        {
-            "status": status,
-            "hashBits": get_parameter_set_identifier_to_number_or_unknown(component),
-            "legacyMarker": SHA224_LEGACY_MARKER,
-            "evaluationYear": evaluation_year,
-        }
+        object.union(
+            hash_primitive_metadata(component),
+            {
+                "status": status,
+                "legacyMarker": SHA224_LEGACY_MARKER,
+                "evaluationYear": evaluation_year,
+            }
+        )
     )
 }
 
@@ -79,12 +88,14 @@ findings contains finding if {
         severity,
         message,
         component,
-        {
-            "status": status,
-            "hashBits": get_parameter_set_identifier_to_number_or_unknown(component),
-            "legacyMarker": SHA512_224_LEGACY_MARKER,
-            "evaluationYear": evaluation_year,
-        }
+        object.union(
+            hash_primitive_metadata(component),
+            {
+                "status": status,
+                "legacyMarker": SHA512_224_LEGACY_MARKER,
+                "evaluationYear": evaluation_year,
+            }
+        )
     )
 }
 
@@ -103,41 +114,40 @@ findings contains finding if {
     finding := build_finding(
         "ECCG-HASH-001",
         "critical",
-        sprintf("Hash function '%s' is not in the agreed hash function list. The agreed hash functions are the following %s.", [component.name, agreed_hash_algorithm_names]),
+        sprintf("Hash function '%s' is not in the agreed hash function list. The agreed hash functions are the following %s.", [component.name, AGREED_HASH_ALGORITHM_NAMES]),
         component,
-        {
-            "hashBits": get_parameter_set_identifier_to_number_or_unknown(component)
-        }
+        hash_primitive_metadata(component),
     )
 }
 
 #
 # Rule ECCG-HASH-004
 # In quantum-sensitive contexts, hash output below 384 bits should be avoided.
-# TODO: this won't ever fire correctly due to the parameterSetIdentifier not being the hashSize
+# parameterSetIdentifier is not the actual hashSize but the maximum security bits
 #
 findings contains finding if {
     some component_index
     component := input.components[component_index]
 
     is_hash_primitive(component)
-    get_parameter_set_identifier_to_number_or_unknown(component) < 384
+    get_parameter_set_identifier_to_number_or_unknown(component) < MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH
 
     note := get_note(NOTE_SECTION, NOTE_SUBSECTION, "4-QuantumThreat")
 
     finding := build_finding(
         "ECCG-HASH-004",
-        "warning",
+        "medium",
         sprintf(
-            "Hash function '%s' has output length %v bits, which is below the recommended 384 bits for quantum-sensitive contexts",
-            [component.name, get_parameter_set_identifier_to_number_or_unknown(component)]
+            "Hash function '%s' has output length %v bits, which is below the recommended %d bits for quantum-sensitive contexts",
+            [component.name, get_parameter_set_identifier_to_number_or_unknown(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH]
         ),
         component,
-        {
-            "notes": note,
-            "minimumRecommendedHashBits": 384,
-            "actualHashBits": get_parameter_set_identifier_to_number_or_unknown(component)
-        }
+        object.union(
+            hash_primitive_metadata(component),
+            {
+                "notes": note,
+            }
+        )
     )
 }
 
@@ -162,10 +172,6 @@ findings contains finding if {
         "error",
         sprintf("Hash function '%s' is obsolete and is not an agreed hash function", [component.name]),
         component,
-        {
-            "status": "obsolete",
-            "hashBits": get_parameter_set_identifier_to_number_or_unknown(component),
-            "reason": "SHA-1 is obsolete and should not be used as an agreed hash function"
-        }
+        hash_primitive_metadata(component),
     )
 }
