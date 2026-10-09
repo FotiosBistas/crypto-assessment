@@ -1,8 +1,6 @@
 package cbom.eccg.symmetric_atomic_primitives.block_ciphers
 
 import data.cbom.eccg.helpers.is_block_cipher_primitive
-import data.cbom.eccg.helpers.get_mode_or_unknown
-import data.cbom.eccg.helpers.get_primitive_or_unknown
 import data.cbom.eccg.helpers.get_parameter_set_identifier_to_number_or_unknown
 import data.cbom.eccg.helpers.get_note
 import data.cbom.eccg.helpers.build_finding
@@ -13,14 +11,16 @@ import data.cbom.eccg.helpers.evaluation_year
 
 import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_aes_component
 import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_3des_component
+import data.cbom.eccg.symmetric_atomic_primitives.helpers.block_cipher_metadata
 import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_agreed_block_cipher_component
 import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_allowed_aes_key_size
+import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_block_cipher_key_size_above_quantum_sensitive_threshold
 
 import data.cbom.eccg.symmetric_atomic_primitives.constants.AGREED_BLOCK_CIPHER_ALGORITHM_NAMES
-import data.cbom.eccg.symmetric_atomic_primitives.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER
 import data.cbom.eccg.symmetric_atomic_primitives.constants.TRIPLE_DES_REQUIRED_KEY_BITS
 import data.cbom.eccg.symmetric_atomic_primitives.constants.TRIPLE_DES_LEGACY_MARKER
 import data.cbom.eccg.symmetric_atomic_primitives.constants.AES_ALLOWED_KEY_SIZES
+import data.cbom.eccg.symmetric_atomic_primitives.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER
 
 #
 # Overall result:
@@ -33,16 +33,6 @@ compliant if count(findings) == 0
 
 NOTE_SECTION := "Symmetric-Atomic-Primitives"
 NOTE_SUBSECTION := "Block-Ciphers"
-
-
-block_cipher_metadata(component) := {
-    "primitive": get_primitive_or_unknown(component),
-    # this is the max security of the algorithm not the actual key bits
-    "keyBits": get_parameter_set_identifier_to_number_or_unknown(component),
-    "mode": get_mode_or_unknown(component),
-    "minimumRecommendedBitsForQuantumSensitiveContext": MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER,
-}
-
 
 #
 # Rule ECCG-BLOCK-001
@@ -58,7 +48,7 @@ findings contains finding if {
     finding := build_finding(
         "ECCG-BLOCK-001",
         "critical",
-        sprintf("Block cipher '%s' is not in the agreed block cipher list. The agreed block ciphers are the following: %s", [component.name, AGREED_BLOCK_CIPHER_ALGORITHM_NAMES]),
+        sprintf("Block cipher '%s' is not in the agreed Block Cipher primitive list. The agreed Block Ciphers primitives are the following: %s", [component.name, AGREED_BLOCK_CIPHER_ALGORITHM_NAMES]),
         component,
         block_cipher_metadata(component),
     )
@@ -80,7 +70,7 @@ findings contains finding if {
         "ECCG-BLOCK-002",
         "high",
         sprintf(
-            "AES uses a non-agreed key size: %v bits. Allowed sizes are %v bits",
+            "AES uses a non-agreed key size: %v bits. The allowed sizes are %v bits",
             [get_parameter_set_identifier_to_number_or_unknown(component), AES_ALLOWED_KEY_SIZES]
         ),
         component,
@@ -102,7 +92,6 @@ findings contains finding if {
     component := input.components[component_index]
 
     is_3des_component(component)
-
 
     status := legacy_marker_status(TRIPLE_DES_LEGACY_MARKER)
     severity := legacy_status_severity(status)
@@ -150,7 +139,7 @@ findings contains finding if {
         "ECCG-BLOCK-004",
         severity,
         sprintf(
-            "3DES uses a non-agreed key size: %v bits. Required size is %d bits. %s. Note that these bits are the maximum security. Having an even smaller key size is even worse.",
+            "3DES uses a non-agreed key size: %v bits. Required size is %d bits. %s.",
             [
                 get_parameter_set_identifier_to_number_or_unknown(component), 
                 TRIPLE_DES_REQUIRED_KEY_BITS, 
@@ -180,9 +169,8 @@ findings contains finding if {
     some component_index
     component := input.components[component_index]
 
-    is_block_cipher_primitive(component)
     is_agreed_block_cipher_component(component)
-    get_parameter_set_identifier_to_number_or_unknown(component) < MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER
+    not is_block_cipher_key_size_above_quantum_sensitive_threshold(component)
 
     note_id :=  "3-QuantumThreat"
 
@@ -192,7 +180,7 @@ findings contains finding if {
         "ECCG-BLOCK-005",
         "medium",
         sprintf(
-            "Cipher '%s' uses %v-bit keying, which is below %d bits and should be avoided where resistance to quantum attacks is required. Note that these bits are the maximum security. Having an even smaller key size is even worse.",
+            "Cipher '%s' uses %v-bit keying, which is below %d bits and should be avoided where resistance to quantum attacks is required.",
             [component.name, get_parameter_set_identifier_to_number_or_unknown(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER]
         ),
         component,

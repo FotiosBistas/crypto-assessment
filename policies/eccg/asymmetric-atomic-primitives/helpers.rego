@@ -80,7 +80,6 @@ eccg_recommended_ec_curve_names contains "curve25519"
 eccg_recommended_ec_curve_names contains "othercurve448"
 eccg_recommended_ec_curve_names contains "curve448"
 
-
 # Edwards-based digital signatures [RFC8032]
 #
 # CycloneDX registry names:

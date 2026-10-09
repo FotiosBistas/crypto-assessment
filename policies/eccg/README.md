@@ -12,16 +12,9 @@ Rules that depend on key size, hash output size, RSA modulus size, finite-field
 group size, or MAC key size are only reliable when the relevant size is present
 and correctly represented in the CBOM.
 
-The current policies often fall back to:
+The current policies utilize:
 
 `cryptoProperties.algorithmProperties.parameterSetIdentifier`
-
-This field is not always the actual key size or output size. If it is missing,
-non-numeric, or semantically ambiguous, the rule should be treated as
-inconclusive. Separate Semgrep source-code findings may add evidence when
-explicit source-level sizes are visible, such as hard-coded key lengths or
-key-generation arguments, but they do not cover imported or runtime-generated
-keys.
 
 ### Runtime and Data-Flow Properties
 

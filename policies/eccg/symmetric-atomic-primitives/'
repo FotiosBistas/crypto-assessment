@@ -1,0 +1,146 @@
+package cbom.eccg.symmetric_atomic_primitives.helpers
+
+import data.cbom.eccg.constants.AES_ALLOWED_KEY_SIZES
+import data.cbom.eccg.constants.AES_ALGORITHM_FAMILIES
+import data.cbom.eccg.constants.AES_ALGORITHM_OIDS
+import data.cbom.eccg.constants.TRIPLE_DES_ALGORITHM_OIDS
+import data.cbom.eccg.constants.SHA1_HASH_ALGORITHM_FAMILIES
+import data.cbom.eccg.constants.SHA1_HASH_ALGORITHM_OIDS
+import data.cbom.eccg.constants.SHA2_HASH_ALGORITHM_FAMILIES
+import data.cbom.eccg.constants.SHA2_HASH_ALGORITHM_OIDS
+
+import data.cbom.eccg.helpers.get_parameter_set_identifier_to_number_or_unknown
+import data.cbom.eccg.helpers.get_component_oid_or_unknown
+import data.cbom.eccg.helpers.get_component_algorithm_family_or_unknown
+import data.cbom.eccg.helpers.normalize_crypto_identifier
+
+#
+# Helper: identify AES components 
+#
+is_aes_component(component) if {
+    oid := get_component_oid_or_unknown(component) 
+    oid in AES_ALGORITHM_OIDS
+} else if {
+    algorithm_family := get_component_algorithm_family_or_unknown(component) 
+    algorithm_family in AES_ALGORITHM_FAMILIES
+} else if {
+    normalized_name := normalize_crypto_identifier(component.name)
+    contains(normalized_name, "aes")
+}
+
+#
+# Helper: identify Triple-DES / 3DES
+#
+is_3des_component(component) if {
+    oid := get_component_oid_or_unknown(component) 
+    oid in TRIPLE_DES_ALGORITHM_OIDS
+} else if {
+    algorithm_family := get_component_algorithm_family_or_unknown(component) 
+    algorithm_family in TRIPLE_DES_ALGORITHM_FAMILIES
+} else if {
+    normalized_name := normalize_crypto_identifier(component.name)
+    contains(normalized_name, "3des")
+} else if {
+    normalized_name := normalize_crypto_identifier(component.name)
+    contains(normalized_name, "tripledes")
+}
+
+is_agreed_block_cipher_component(component) if {
+    is_aes_component(component)
+}
+
+is_block_cipher_component(component) if {
+   is_3des_component(component) 
+} else if {
+   is_aes_component(component) 
+}
+
+
+#
+# Helpers: identify SHA functions.
+#
+is_sha224(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA224")
+}
+
+is_sha256(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA256")
+}
+
+is_sha384(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA384")
+}
+
+is_sha512(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA512")
+}
+
+is_sha512_224(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA512/224")
+}
+
+is_sha512_256(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA512/256")
+}
+
+is_sha3_256(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA3-256")
+}
+
+is_sha3_384(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA3-384")
+}
+
+is_sha3_512(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA3-512")
+}
+
+is_sha1(component) if {
+    normalized_name := upper(normalize_crypto_identifier(component.name))
+    contains(normalized_name, "SHA1")
+}
+
+is_legacy_hash_component(component) if {
+    is_sha224(component)
+} else if {
+    is_sha512_224(component)
+} else if {
+    is_sha1(component)
+}
+
+is_agreed_hash_component(component) if {
+    is_sha256(component)
+} else if {
+    is_sha384(component)
+} else if {
+    is_sha512(component)
+} else if {
+    is_sha512_256(component)
+} else if {
+    is_sha3_256(component)
+} else if {
+    is_sha3_384(component)
+} else if {
+    is_sha3_512(component)
+}
+
+
+#
+# Helper: allowed AES key sizes are 128, 192, or 256 bits.
+# parameterSetIdentifier are the maximum security bits
+#
+is_allowed_aes_key_size(component) if {
+    key_size_bits := get_parameter_set_identifier_to_number_or_unknown(component)
+    key_size_bits in AES_ALLOWED_KEY_SIZES
+    is_aes_component(component)
+} 
+

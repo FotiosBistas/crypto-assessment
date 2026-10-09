@@ -9,16 +9,16 @@ signals, and manual-review requirements live in [eccg/README.md](eccg/README.md)
  
 - ECCG-BLOCK-001: 
     - Severity: critical
-    - Block cipher [cipher] is not in the agreed block cipher list. That does mean that your code is unsafe, but should probably be marked as non compliant.
+    - Block cipher [cipher] is not in the agreed block cipher list.
 - ECCG-BLOCK-002: 
     - Severity: high
     - AES uses a non-agreed key size: [x] bits. Allowed sizes are 128, 192, or 256 bits
-- ECCG-BLOCK-003:
-    - Severity: high
-    - 3DES uses a non-agreed key size: [x] bits. Required size is 168 bits
-- ECCG-BLOCK-004: 
+- ECCG-BLOCK-003: 
     - Severity: high
     - 3DES will become legacy-only in 2027 and carries a small-block-size limitation (64-bit block) and a quantum-threat note    
+- ECCG-BLOCK-004:
+    - Severity: high
+    - 3DES uses a non-agreed key size: [x] bits. Required size is 168 bits.
 - ECCG-BLOCK-005:
     Severity: medium
     - Cipher [cipher] uses [x]-bit keying, which is below 192 bits and should be avoided where resistance to quantum attacks is required
@@ -26,12 +26,8 @@ signals, and manual-review requirements live in [eccg/README.md](eccg/README.md)
 ### Hashes 
 
 - ECCG-HASH-001:
-    - Hash function SHA224 is legacy-only (L[2025]) and is not an agreed hash function
-- ECCG-HASH-002:
-    - Hash function SHA512/224 is legacy-only (L[2025]) and is not an agreed hash function
-- ECCG-HASH-003:
-    - Hash function [hash-function] is not in the agreed hash function list. This does not mean that your code is unsafe, but this should probably be flagged as non compliant.
-- ECCG-HASH-004: 
+    - Hash function [hash-function] is not in the agreed hash function list.
+- ECCG-HASH-002: 
     - Hash function [hash-function] has output length [x] bits, which is below the recommended 384 bits for quantum-sensitive contexts
 
 ## Symmetric Constructions 

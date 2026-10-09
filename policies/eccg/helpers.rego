@@ -274,10 +274,6 @@ is_ae_primitive(component) if {
     object.get(component.cryptoProperties.algorithmProperties, "primitive", "") == "ae"
 }
 
-is_ae_primitive(component) if {
-    is_block_cipher_primitive(component)
-}
-
 is_kdf_primitive(component) if {
     component.cryptoProperties.assetType == "algorithm"
     lower(object.get(component.cryptoProperties.algorithmProperties, "primitive", "")) == "kdf"
@@ -1330,7 +1326,7 @@ get_related_crypto_material_finding_details(component) := details if {
         "relatedAlgorithm": related_algorithm_name_or_unknown(component),
         "relatedAlgorithmBomRef": related_algorithm_bom_ref_or_unknown(component),
         "relatedAlgorithmParameterSetIdentifier": related_algorithm_parameter_set_or_unknown(component),
-        "bomRef": get_bom_ref(component),
+        "bomRef": get_bom_ref_or_unknown(component),
         "sourceReferences": get_source_references(component),
         "sourceLocation": get_first_source_location(component),
         "sourceLine": get_first_source_line(component)
@@ -1342,7 +1338,7 @@ get_related_crypto_material_finding_details(component) := details if {
 #
 # If the component does not contain a bom-ref field, this returns "unknown".
 #
-get_bom_ref(component) := bom_ref if {
+get_bom_ref_or_unknown(component) := bom_ref if {
     bom_ref := object.get(component, "bom-ref", "unknown")
 }
 
@@ -1354,6 +1350,15 @@ get_bom_ref(component) := bom_ref if {
 #
 # If the component does not contain a name field, this returns "unknown".
 #
-get_component_name(component) := name if {
+get_component_name_or_unknown(component) := name if {
     name := object.get(component, "name", "unknown")
+}
+
+
+get_component_oid_or_unknown(component) := oid if {
+    oid := object.get(component.cryptoProperties, "oid", "unknown")
+}
+
+get_component_algorithm_family_or_unknown(component) := algorithm_family if {
+    algorithm_family := object.get(component.cryptoProperties.algorithmProperties, "algorithmFamily", "unknown")
 }
