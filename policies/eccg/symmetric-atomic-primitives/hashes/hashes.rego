@@ -1,4 +1,4 @@
-package cbom.eccg.symmetric_atomic_primitives.hash_primitives
+package cbom.eccg.symmetric_atomic_primitives.hashes.hash_primitives
 
 import data.cbom.eccg.helpers.is_hash_primitive
 import data.cbom.eccg.helpers.get_parameter_set_identifier_to_number_or_unknown
@@ -9,12 +9,12 @@ import data.cbom.eccg.helpers.legacy_status_severity
 import data.cbom.eccg.helpers.legacy_status_message
 import data.cbom.eccg.helpers.evaluation_year
 
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_agreed_hash_component
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_hash_output_size_above_quantum_sensitive_threshold
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.hash_primitive_metadata
+import data.cbom.eccg.symmetric_atomic_primitives.hashes.helpers.is_agreed_hash_component
+import data.cbom.eccg.symmetric_atomic_primitives.hashes.helpers.is_hash_output_size_above_quantum_sensitive_threshold
+import data.cbom.eccg.symmetric_atomic_primitives.hashes.helpers.hash_primitive_metadata
 
-import data.cbom.eccg.symmetric_atomic_primitives.constants.AGREED_HASH_ALGORITHM_NAMES
-import data.cbom.eccg.symmetric_atomic_primitives.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH
+import data.cbom.eccg.symmetric_atomic_primitives.hashes.constants.AGREED_HASH_ALGORITHM_NAMES
+import data.cbom.eccg.symmetric_atomic_primitives.hashes.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH
 
 default compliant := true
 

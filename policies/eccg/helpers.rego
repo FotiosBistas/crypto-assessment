@@ -264,6 +264,11 @@ is_hash_primitive(component) if {
     object.get(component.cryptoProperties.algorithmProperties, "primitive", "") == "hash"
 }
 
+is_xof_primitive(component) if {
+    component.cryptoProperties.assetType == "algorithm"
+    object.get(component.cryptoProperties.algorithmProperties, "primitive", "") == "xof"
+}
+
 is_block_cipher_primitive(component) if {
     component.cryptoProperties.assetType == "algorithm"
     object.get(component.cryptoProperties.algorithmProperties, "primitive", "") == "block-cipher"
@@ -272,6 +277,12 @@ is_block_cipher_primitive(component) if {
 is_ae_primitive(component) if {
     component.cryptoProperties.assetType == "algorithm"
     object.get(component.cryptoProperties.algorithmProperties, "primitive", "") == "ae"
+}
+
+is_block_cipher_or_ae_primitive(component) if {
+    is_block_cipher_primitive(component)
+} else if {
+    is_ae_primitive(component)
 }
 
 is_kdf_primitive(component) if {

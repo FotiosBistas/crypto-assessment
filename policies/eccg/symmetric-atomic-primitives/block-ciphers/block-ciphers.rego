@@ -1,4 +1,4 @@
-package cbom.eccg.symmetric_atomic_primitives.block_ciphers
+package cbom.eccg.symmetric_atomic_primitives.block_ciphers.block_ciphers
 
 import data.cbom.eccg.helpers.is_block_cipher_primitive
 import data.cbom.eccg.helpers.get_parameter_set_identifier_to_number_or_unknown
@@ -9,18 +9,18 @@ import data.cbom.eccg.helpers.legacy_status_severity
 import data.cbom.eccg.helpers.legacy_status_message
 import data.cbom.eccg.helpers.evaluation_year
 
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_aes_component
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_3des_component
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.block_cipher_metadata
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_agreed_block_cipher_component
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_allowed_aes_key_size
-import data.cbom.eccg.symmetric_atomic_primitives.helpers.is_block_cipher_key_size_above_quantum_sensitive_threshold
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.is_aes_component
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.is_3des_component
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.block_cipher_metadata
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.is_agreed_block_cipher_component
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.is_allowed_aes_key_size
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.is_block_cipher_key_size_above_quantum_sensitive_threshold
 
-import data.cbom.eccg.symmetric_atomic_primitives.constants.AGREED_BLOCK_CIPHER_ALGORITHM_NAMES
-import data.cbom.eccg.symmetric_atomic_primitives.constants.TRIPLE_DES_REQUIRED_KEY_BITS
-import data.cbom.eccg.symmetric_atomic_primitives.constants.TRIPLE_DES_LEGACY_MARKER
-import data.cbom.eccg.symmetric_atomic_primitives.constants.AES_ALLOWED_KEY_SIZES
-import data.cbom.eccg.symmetric_atomic_primitives.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.AGREED_BLOCK_CIPHER_ALGORITHM_NAMES
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.TRIPLE_DES_REQUIRED_KEY_BITS
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.TRIPLE_DES_LEGACY_MARKER
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.AES_ALLOWED_KEY_SIZES
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER
 
 #
 # Overall result:

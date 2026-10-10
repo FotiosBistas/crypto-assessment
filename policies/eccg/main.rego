@@ -23,12 +23,17 @@ policy_sources := [
     {
         "section": "Symmetric Atomic Primitives",
         "subsection": "Block Ciphers",
-        "findings": data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.findings
+        "findings": data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.block_ciphers.findings
     },
     {
         "section": "Symmetric Atomic Primitives",
         "subsection": "Hash Primitives",
-        "findings": data.cbom.eccg.symmetric_atomic_primitives.hash_primitives.findings
+        "findings": data.cbom.eccg.symmetric_atomic_primitives.hashes.hash_primitives.findings
+    },
+    {
+        "section": "Symmetric Atomic Primitives",
+        "subsection": "XOFs",
+        "findings": data.cbom.eccg.symmetric_atomic_primitives.xofs.xofs.findings
     },
     {
         "section": "Symmetric Constructions",

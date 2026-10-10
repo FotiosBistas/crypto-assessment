@@ -19,6 +19,13 @@
           "title": "4-QuantumThreat",
           "text": "There exist algorithms leveraging quantum computers that may speed up attacks against hash functions. In contexts where resistance against attacks leveraging quantum computers is required, it is recommended to not use hash functions with output length smaller than 384 bits."
         }
+      },
+      "XOFs": {
+        "4-QuantumThreat": {
+          "category": "specific",
+          "title": "4-QuantumThreat",
+          "text": "There exist algorithms leveraging quantum computers that may speed up attacks against hash functions. In contexts where resistance against attacks leveraging quantum computers is required, it is recommended to not use hash functions with output length smaller than 384 bits."
+        }
       }
     },
     "Symmetric-Constructions": {
