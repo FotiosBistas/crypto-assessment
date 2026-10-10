@@ -30,6 +30,12 @@ signals, and manual-review requirements live in [eccg/README.md](eccg/README.md)
 - ECCG-HASH-002: 
     - Hash function [hash-function] has output length [x] bits, which is below the recommended 384 bits for quantum-sensitive contexts
 
+### XOFs
+
+- ECCG-XOF-001:
+    - XOF function [hash-function] is not in the agreed hash function list.
+- ECCG-XOF -002: 
+    - XOF function [hash-function] has output length [x] bits, which is below the recommended 256 bits for quantum-sensitive contexts
 ## Symmetric Constructions 
 
 ### Agreed Symmetric Encryption Schemes
