@@ -1,13 +1,11 @@
 package cbom.eccg.symmetric_atomic_primitives.hashes.hash_primitives
 
-import data.cbom.eccg.helpers.is_hash_primitive
-import data.cbom.eccg.helpers.get_parameter_set_identifier_to_number_or_unknown
-import data.cbom.eccg.helpers.get_note
-import data.cbom.eccg.helpers.build_finding
-import data.cbom.eccg.helpers.legacy_marker_status
-import data.cbom.eccg.helpers.legacy_status_severity
-import data.cbom.eccg.helpers.legacy_status_message
-import data.cbom.eccg.helpers.evaluation_year
+import data.cbom.eccg.general_helpers.build_finding
+
+import data.cbom.eccg.classifying_helpers.is_hash_primitive
+
+import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_empty
+import data.cbom.eccg.getter_helpers.get_note
 
 import data.cbom.eccg.symmetric_atomic_primitives.hashes.helpers.is_agreed_hash_component
 import data.cbom.eccg.symmetric_atomic_primitives.hashes.helpers.is_hash_output_size_above_quantum_sensitive_threshold
@@ -60,7 +58,7 @@ findings contains finding if {
         "medium",
         sprintf(
             "Hash function '%s' has output length %v bits, which is below the recommended %d bits for quantum-sensitive contexts",
-            [component.name, get_parameter_set_identifier_to_number_or_unknown(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH]
+            [component.name, get_component_parameter_set_identifier_to_number_or_empty(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH]
         ),
         component,
         object.union(
