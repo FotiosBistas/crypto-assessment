@@ -75,49 +75,33 @@ signals, and manual-review requirements live in [eccg/README.md](eccg/README.md)
 
 ### Message Authentication Codes 
 
-- ECCG-MAC-000:
-    - Severity: high
-    - MAC scheme [scheme] is not listed in the ECCG agreed or legacy MAC tables. This does not mean that your code is unsafe, but it should probably be flagged as non-compliant.
-
 - ECCG-MAC-001:
-    - Severity: info
-    - CMAC is an agreed MAC scheme.
+    - Severity: critical
+    - MAC scheme [scheme] is not listed in the ECCG agreed or legacy MAC tables. The recommended MAC schemes are: [``recommended_mac_schemes``].
 
 - ECCG-MAC-002:
     - Severity: warning
-    - CBC-based construction [scheme] may correspond to manually implemented CBC-MAC. CBC-MAC is agreed only when all inputs computed under the same key have identical size.
+    - The output of a MAC must not be truncated less than x bits.
 
 - ECCG-HMAC-001:
-    - Severity: warning
-    - HMAC is listed by ECCG, but the runtime MAC key size is not available in the current CBOM, so the agreement threshold cannot be fully assessed.
+    - Severity: medium
+    - HMAC is safe for quantum sensitive contexts, when output size is at least %d bits.
 
-- ECCG-HMAC-002:
-    - Severity: high and critical after 2030
-    - HMAC-SHA1 is legacy-only, L[2030]. Severity depends on the current evaluation year and legacy marker status.
-
-- ECCG-KMAC-001:
-    - Severity: warning
-    - KMAC128 is listed by ECCG, but the runtime MAC key size is not available in the current CBOM, so the agreement threshold cannot be fully assessed.
-
-- ECCG-KMAC-002:
-    - Severity: warning
-    - KMAC256 is listed by ECCG, but the runtime MAC key size is not available in the current CBOM, so the agreement threshold cannot be fully assessed.
-
-- ECCG-KMAC-003:
-    - Severity: warning
-    - KMAC was detected, but the variant could not be determined as KMAC128 or KMAC256.
+- ECCG-CBC-MAC-001:
+    - Severity: warning 
+    - CBC MAC scheme detected. Ensure the outputs follow a fixed input length.
 
 - ECCG-GMAC-001:
-    - Severity: info
-    - GMAC is an agreed universal-hash-function-based MAC scheme, subject to GCM/GMAC operational constraints.
+    - Severity: warning
+    - GMAC scheme detected. Ensure the security of the IV.
 
 - ECCG-GMAC-002:
     - Severity: warning
-    - GCM-based construction [scheme] may correspond to GMAC-style authentication-only usage. This cannot be fully determined from CBOM alone.
+    - GMAC scheme detected. Ensure the agreed upon 96 bits of the IV and the appropriate construction NIST SP 800-38D, Section 8.2.1.
 
-- ECCG-MAC-003:
+- ECCG-GMAC-003:
     - Severity: warning
-    - MAC truncation requirements may apply. The current CBOM does not expose the final MAC/tag length, so truncation compliance cannot be fully assessed.
+    - GMAC scheme detected. Do not truncate the output tag of GMAC.
 
 ### Agreed Symmetric Authenticated Encryption Schemes
 
