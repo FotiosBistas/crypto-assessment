@@ -10,8 +10,8 @@ import data.cbom.eccg.getter_helpers.get_note
 import data.cbom.eccg.symmetric_atomic_primitives.hashes.helpers.is_agreed_hash_component
 import data.cbom.eccg.symmetric_atomic_primitives.hashes.helpers.is_hash_output_size_above_quantum_sensitive_threshold
 import data.cbom.eccg.symmetric_atomic_primitives.hashes.helpers.hash_primitive_metadata
+import data.cbom.eccg.symmetric_atomic_primitives.hashes.helpers.AGREED_HASH_ALGORITHM_NAMES
 
-import data.cbom.eccg.symmetric_atomic_primitives.hashes.constants.AGREED_HASH_ALGORITHM_NAMES
 import data.cbom.eccg.symmetric_atomic_primitives.hashes.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH
 
 default compliant := true

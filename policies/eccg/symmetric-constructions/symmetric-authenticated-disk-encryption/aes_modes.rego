@@ -1,23 +1,19 @@
-package cbom.eccg.symmetric_constructions.aes_modes
+package cbom.eccg.symmetric_constructions.symmetric_encryption_schemes.aes_modes
 
 import data.eccg.eccg_notes.notes
 
+import data.cbom.eccg.getter_helpers.get_note
+
+import data.cbom.eccg.general_helpers.build_finding
+
+import data.cbom.eccg.classifying_helpers.is_symmetric_encryption_scheme
+
 import data.cbom.eccg.helpers.get_mode_or_unknown
 import data.cbom.eccg.helpers.get_primitive_or_unknown
-import data.cbom.eccg.helpers.get_note
 import data.cbom.eccg.helpers.is_symmetric_encryption_scheme
-import data.cbom.eccg.helpers.build_finding
 import data.cbom.eccg.helpers.is_gcm_primitive
 
-import data.cbom.eccg.symmetric_constructions.helpers.is_agreed_symmetric_encryption_scheme
-import data.cbom.eccg.symmetric_constructions.helpers.is_conditionally_agreed_symmetric_encryption_scheme
-import data.cbom.eccg.symmetric_constructions.helpers.is_padding_sensitive_scheme
-import data.cbom.eccg.symmetric_constructions.helpers.is_stream_mode_scheme
-import data.cbom.eccg.symmetric_constructions.helpers.is_cbc_scheme
-import data.cbom.eccg.symmetric_constructions.helpers.agreed_symmetric_encryption_scheme_names
-import data.cbom.eccg.symmetric_constructions.helpers.is_symmetric_encryption_scheme_requiring_iv
-import data.cbom.eccg.symmetric_constructions.helpers.is_symmetric_encryption_scheme_requiring_unpredictable_iv
-import data.cbom.eccg.symmetric_constructions.helpers.iv_requirement_message
+import data.cbom.eccg.symmetric_constructions.symmetric_encryption_schemes.helpers.is_agreed_symmetric_encryption_scheme
 
 default compliant := true
 

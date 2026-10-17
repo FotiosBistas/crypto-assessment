@@ -21,6 +21,13 @@ is_mac_primitive(component) if {
     asset_type := get_component_asset_type_or_empty(component)
     asset_type in ["algorithm", "related-crypto-material"]
     get_component_primitive_or_empty(component) == "mac"
+
+}
+
+is_stream_cipher_primitive(component) if {
+    asset_type := get_component_asset_type_or_empty(component)
+    asset_type in ["algorithm", "related-crypto-material"]
+    get_component_primitive_or_empty(component) == "stream-cipher"
 }
 
 is_hash_primitive(component) if {
@@ -97,6 +104,12 @@ is_gcm_or_ccm_primitive(component) if {
     is_gcm_primitive(component)
 } else if {
     is_ccm_primitive(component)
+}
+
+is_stream_cipher_or_block_cipher_primitive(component) if {
+    is_block_cipher_primitive(component)
+} else if {
+    is_stream_cipher_primitive(component)
 }
 
 is_combiner_primitive(component) if {
@@ -178,6 +191,10 @@ is_symmetric_encryption_scheme(component) if {
     asset_type := get_component_asset_type_or_empty(component)
     asset_type in ["algorithm", "related-crypto-material"]
     is_ae_primitive(component)
+} else if {
+    asset_type := get_component_asset_type_or_empty(component)
+    asset_type in ["algorithm", "related-crypto-material"]
+    is_stream_cipher_primitive(component)
 }
 
 #
