@@ -9,8 +9,8 @@ import data.cbom.eccg.general_helpers.build_finding
 import data.cbom.eccg.symmetric_atomic_primitives.xofs.helpers.is_agreed_xof_component
 import data.cbom.eccg.symmetric_atomic_primitives.xofs.helpers.xof_primitive_metadata
 import data.cbom.eccg.symmetric_atomic_primitives.xofs.helpers.is_xof_output_size_above_quantum_sensitive_threshold
+import data.cbom.eccg.symmetric_atomic_primitives.xofs.helpers.AGREED_XOF_ALGORITHM_NAMES
 
-import data.cbom.eccg.symmetric_atomic_primitives.xofs.constants.AGREED_XOF_ALGORITHM_NAMES
 import data.cbom.eccg.symmetric_atomic_primitives.xofs.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_XOF
 
 default compliant := true

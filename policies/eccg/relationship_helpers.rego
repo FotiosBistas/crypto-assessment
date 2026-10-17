@@ -95,6 +95,42 @@ components_share_evidence_location_within_lines(component_a, component_b, max_di
     distance <= max_distance
 }
 
+component_has_evidence_in_window(component, location, start_line, end_line) if {
+    some occurrence in get_component_evidence_occurrences_or_empty(component)
+
+    occurrence_location := get_component_occurrence_location_or_empty(occurrence)
+    occurrence_line := get_component_occurrence_line_or_negative_one(occurrence)
+
+    occurrence_location == location
+    occurrence_line >= start_line
+    occurrence_line <= end_line
+}
+
+components_share_evidence_window(components, max_distance) if {
+    is_array(components)
+    count(components) >= 2
+
+    is_number(max_distance)
+    max_distance >= 0
+
+    # Select an occurrence as the beginning of the window
+    some component in components
+    some occurrence in get_component_evidence_occurrences_or_empty(component)
+
+    location := get_component_occurrence_location_or_empty(occurrence)
+    start_line := get_component_occurrence_line_or_negative_one(occurrence)
+
+    location != ""
+    start_line > 0
+
+    end_line := start_line + max_distance
+
+    # Every component must have evidence inside this window
+    every candidate in components {
+        component_has_evidence_in_window(candidate, location, start_line, end_line)
+    }
+}
+
 #
 # ---------------------------------------------------------
 # Helper: component_has_evidence_path_containing

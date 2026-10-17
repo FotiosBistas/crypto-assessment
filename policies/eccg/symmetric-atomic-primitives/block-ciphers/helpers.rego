@@ -11,6 +11,7 @@ import data.cbom.eccg.getter_helpers.get_component_oid_or_empty
 import data.cbom.eccg.getter_helpers.get_component_primitive_or_empty
 import data.cbom.eccg.getter_helpers.get_component_mode_or_empty
 
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.AES_ALGORITHM_NAMES
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.AES_ALLOWED_KEY_SIZES
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.AES_ALGORITHM_FAMILIES
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.AES_ALGORITHM_OID_VALUES
@@ -78,3 +79,6 @@ is_allowed_aes_key_size(component) if {
     key_size_bits in AES_ALLOWED_KEY_SIZES
     is_aes_component(component)
 } 
+
+AGREED_BLOCK_CIPHER_ALGORITHM_NAMES :=
+    AES_ALGORITHM_NAMES 

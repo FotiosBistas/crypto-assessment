@@ -10,15 +10,19 @@ signals, and manual-review requirements live in [eccg/README.md](eccg/README.md)
 - ECCG-BLOCK-001: 
     - Severity: critical
     - Block cipher [cipher] is not in the agreed block cipher list.
+
 - ECCG-BLOCK-002: 
     - Severity: high
     - AES uses a non-agreed key size: [x] bits. Allowed sizes are 128, 192, or 256 bits
+
 - ECCG-BLOCK-003: 
     - Severity: high
     - 3DES will become legacy-only in 2027 and carries a small-block-size limitation (64-bit block) and a quantum-threat note    
+
 - ECCG-BLOCK-004:
     - Severity: high
     - 3DES uses a non-agreed key size: [x] bits. Required size is 168 bits.
+
 - ECCG-BLOCK-005:
     Severity: medium
     - Cipher [cipher] uses [x]-bit keying, which is below 192 bits and should be avoided where resistance to quantum attacks is required
@@ -27,6 +31,7 @@ signals, and manual-review requirements live in [eccg/README.md](eccg/README.md)
 
 - ECCG-HASH-001:
     - Hash function [hash-function] is not in the agreed hash function list.
+
 - ECCG-HASH-002: 
     - Hash function [hash-function] has output length [x] bits, which is below the recommended 384 bits for quantum-sensitive contexts
 
@@ -34,44 +39,56 @@ signals, and manual-review requirements live in [eccg/README.md](eccg/README.md)
 
 - ECCG-XOF-001:
     - XOF function [hash-function] is not in the agreed hash function list.
+
 - ECCG-XOF -002: 
     - XOF function [hash-function] has output length [x] bits, which is below the recommended 256 bits for quantum-sensitive contexts
+
 ## Symmetric Constructions 
 
 ### Agreed Symmetric Encryption Schemes
+
 - ECCG-SYM-ENC-001: 
     - Severity: critical
-    - Symmetric encryption scheme [scheme] is not in the agreed scheme list (CTR, OFB, CBC, CBC-CS, CFB). This does not necessarily mean that your code is unsafe, but should be flagged for a warning.
+    - Symmetric encryption scheme [scheme] is not in the agreed scheme list. 
+
 - ECCG-SYM-ENC-002:
     - Severity: warning
     - Scheme [scheme] is only conditionally recommended; standalone use is legacy unless additional integrity is provided
+
 - ECCG-SYM-ENC-003: 
     - Severity: warning
-    - Modes require a non-predictable IV
+    - Some symmetric encryption modes require a non-predictable IV or a unique IV not necessarily non-predictable.
+
 - ECCG-SYM-ENC-004: 
     - Severity: warning
-    - Scheme [scheme] is a stream-mode construction; IV-key reuse must not cause keystream overlap
+    - GCM scheme detected. Ensure the agreed upon 128 bits of the IV and the appropriate construction: NIST SP 800-38D, Section 8.2.1.
+
 - ECCG-SYM-ENC-005: 
     - Severity: warning
-    - Scheme [scheme] requires careful padding handling; implementations should not expose padding-oracle behavior
+    - GCM scheme detected. Ensure the plaintext output is: 2^32 - 2.
+
+- ECCG-SYM-ENC-006: 
+    - Severity: warning
+    - GCM scheme detected. The output length of the MAC is: 128.
+
 
 ### Agreed Disk Encryption Schemes
 
 - ECCG-DISK-001:
     - Severity: warning
-    - Disk encryption scheme [scheme] is not in the accepted disk-encryption list. XTS is agreed, while CBC-ESSIV is legacy. CBOM-based detection may be heuristic and can produce false positives.
+    - Disk encryption scheme [scheme] is not in the accepted disk-encryption list. Note that this might be a false positive.
+
 - ECCG-DISK-002:
     - Severity: warning
-    - Scheme [scheme] is a stream-mode construction and is improper for disk encryption. CBOM-based detection may be heuristic and can produce false positives.
+    - Scheme is a stream-mode construction and is improper for disk encryption. CBOM-based detection is heuristic and can produce false positives.
+
 - ECCG-DISK-003:
     - Severity: warning
-    - XTS requires a unique tweak value for each encrypted block position.
+    - XTS scheme detected. Ensure that every block position across all disks encrypted under the same key has a unique tweak value. If tweaks are derived from storage addresses, verify their uniqueness, particularly when logical rather than physical addresses are used
+
 - ECCG-DISK-004:
     - Severity: warning
-    - CBC-ESSIV is legacy in the agreed disk encryption scheme list. CBOM-based detection may be heuristic and can produce false positives.
-- ECCG-DISK-005:
-    - Severity: warning
-    - CBC-ESSIV requires each disk sector to use a unique sector number under a given key. CBOM-based detection may be heuristic and can produce false positives.
+    - CBC-ESSIV scheme detected. Ensure that every disk sector has a unique sector number across all disks encrypted under the same key, particularly when sector numbers are derived from logical storage addresses. CBC-ESSIV does not provide integrity protection and is vulnerable to ciphertext manipulation, potentially allowing attackers to produce meaningful changes after decryption. If such attacks are a concern, stronger disk encryption mechanisms should be adopted.
 
 ### Message Authentication Codes 
 
@@ -106,24 +123,13 @@ signals, and manual-review requirements live in [eccg/README.md](eccg/README.md)
 ### Agreed Symmetric Authenticated Encryption Schemes
 
 - ECCG-AE-001:
-    - Severity: warning
-    - GCM is an agreed authenticated-encryption scheme, if the relevant notes are followed accordingly.
+    - Severity: critical
+    - Detected scheme is not an agreed authenticated-encryption scheme.
 
 - ECCG-AE-002:
     - Severity: warning
-    - CCM is an agreed authenticated-encryption scheme, if the relevant notes are followed.
+    - When using Authenticated Encryption schemes ensure the challenged are not reused and the challenge bits are 125.
 
-- ECCG-AE-003:
-    - Severity: warning
-    - Integrity of the ciphertext must be verified before any plaintext is released or processed, as required by Note 21-DecryptionOrder.
-
-- ECCG-AE-004
-    - Not implemented
-    - EAX is not currently modeled as a first-class CBOM mode.
-
-- ECCG-AE-005:
-    - Severity: medium
-    - A symmetric-encryption and MAC composition was detected. This may correspond to Encrypt-then-MAC, MAC-then-Encrypt, or Encrypt-and-MAC. Under ECCG, Encrypt-then-MAC is agreed, while MAC-then-Encrypt and Encrypt-and-MAC are legacy. Manual review is required.
 
 ### Agreed Key Protection Schemes
 

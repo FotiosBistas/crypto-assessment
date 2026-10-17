@@ -1,14 +1,17 @@
 package cbom.eccg.symmetric_constructions.disk_encryption
 
-import data.cbom.eccg.helpers.build_finding
-import data.cbom.eccg.helpers.get_mode_or_unknown
-import data.cbom.eccg.helpers.get_primitive_or_unknown
-import data.cbom.eccg.helpers.get_note
+import data.cbom.eccg.general_helpers.build_finding
 
-import data.cbom.eccg.symmetric_constructions.helpers.is_disk_encryption_component
-import data.cbom.eccg.symmetric_constructions.helpers.is_xts_scheme
-import data.cbom.eccg.symmetric_constructions.helpers.is_cbc_essiv_scheme
-import data.cbom.eccg.symmetric_constructions.helpers.is_stream_mode_for_disk
+import data.cbom.eccg.getter_helpers.get_note
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+
+import data.cbom.eccg.classifying_helpers.is_symmetric_encryption_scheme
+import data.cbom.eccg.classifying_helpers.is_stream_cipher_primitive
+
+import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.symmetric_encryption_scheme_metadata
+import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.is_agreed_disk_encryption_scheme
+import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.is_cbc_essiv_scheme
+import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.is_xts_scheme
 
 default compliant := true
 
@@ -24,9 +27,7 @@ SUBSECTION = "Disk-Encryption"
 #
 # Accepted / recognized cases:
 # - XTS: agreed
-# - CBC-ESSIV: legacy
-# - CTR/OFB: handled separately by ECCG-DISK-002 because stream modes
-#   are specifically improper for disk encryption.
+# - CBC-ESSIV: admissable
 #
 # Note:
 # CBOM currently does not reliably encode disk-encryption context, so
@@ -36,23 +37,18 @@ findings contains finding if {
     some component_index
     component := input.components[component_index]
 
-    is_disk_encryption_component(component)
-    not is_xts_scheme(component)
-    not is_cbc_essiv_scheme(component)
-    not is_stream_mode_for_disk(component)
+    is_symmetric_encryption_scheme(component)
+    not is_agreed_disk_encryption_scheme(component)
 
     finding := build_finding(
         "ECCG-DISK-001",
-        "warning",
+        "low",
         sprintf(
-            "Disk encryption scheme '%s' is not in the accepted disk-encryption list (XTS is agreed, CBC-ESSIV is legacy). Note that currently it's not possible to detect these schemes accurately through CBOM. There might be some false positives.",
-            [component.name]
+            "Disk encryption scheme '%s' is not in the accepted disk-encryption list. Note that this might be a false positive.",
+            [get_component_name_or_empty(component)]
         ),
         component,
-        {
-            "mode": get_mode_or_unknown(component),
-            "primitive": get_primitive_or_unknown(component)
-        }
+        symmetric_encryption_scheme_metadata(component),
     )
 }
 
@@ -73,24 +69,25 @@ findings contains finding if {
     some component_index
     component := input.components[component_index]
 
-    is_disk_encryption_component(component)
-    is_stream_mode_for_disk(component)
+    is_stream_cipher_primitive(component)
 
     note := get_note(SECTION, SUBSECTION, "9-DiskEncStreamMode")
 
 
     finding := build_finding(
         "ECCG-DISK-002",
-        "warning",
+        "low",
         sprintf(
             "Scheme '%s' is a stream-mode construction and is improper for disk encryption. Note that currently it's not possible to detect these schemes accurately through CBOM. There might be some false positives.",
             [component.name]
         ),
         component,
-        {
-            "notes": note,
-            "mode": get_mode_or_unknown(component)
-        }
+        object.union(
+            symmetric_encryption_scheme_metadata(component),
+            {
+                "notes": note,
+            }
+        )
     )
 }
 
@@ -111,7 +108,7 @@ findings contains finding if {
     some component_index
     component := input.components[component_index]
 
-    is_disk_encryption_component(component)
+    is_symmetric_encryption_scheme(component)
     is_xts_scheme(component)
 
     note_ids := ["10-UniqueTweak", "11-AddressTweak"]
@@ -122,48 +119,22 @@ findings contains finding if {
     finding := build_finding(
         "ECCG-DISK-003",
         "warning",
-        "XTS requires a unique tweak value for each encrypted block position",
+        sprintf(
+            "XTS scheme detected: %s. Ensure that every block position across all disks encrypted under the same key has a unique tweak value. If tweaks are derived from storage addresses, verify their uniqueness, particularly when logical rather than physical addresses are used.",
+            [get_component_name_or_empty(component)]
+        ),
         component,
-        {
-            "notes": notes,
-            "status": "agreed"
-        }
+        object.union(
+            symmetric_encryption_scheme_metadata(component),
+            {
+                "notes": notes,
+            }
+        )
     )
 }
 
 #
 # Rule ECCG-DISK-004
-# Flag CBC-ESSIV as legacy.
-#
-# CBC-ESSIV appears in the ECCG disk-encryption table as a legacy
-# construction. It may still be recognized for compatibility, but it
-# should not be treated as an agreed modern disk-encryption scheme.
-#
-# Note:
-# pyca/cryptography does not expose CBC-ESSIV directly, and CBOM may not
-# model it explicitly. Detection is therefore name/context-based and
-# may require manual or tool-specific modeling.
-#
-findings contains finding if {
-    some component_index
-    component := input.components[component_index]
-
-    is_disk_encryption_component(component)
-    is_cbc_essiv_scheme(component)
-
-    finding := build_finding(
-        "ECCG-DISK-004",
-        "warning",
-        "CBC-ESSIV is legacy in the agreed disk encryption scheme list. Note that currently it's not possible to detect these schemes accurately through CBOM. There might be some false positives.",
-        component,
-        {
-            "status": "legacy"
-        }
-    )
-}
-
-#
-# Rule ECCG-DISK-005
 # Report CBC-ESSIV-specific operational and security notes.
 #
 # CBC-ESSIV requires unique sector numbers under a given key and careful
@@ -184,7 +155,7 @@ findings contains finding if {
     some component_index
     component := input.components[component_index]
 
-    is_disk_encryption_component(component)
+    is_symmetric_encryption_scheme(component)
     is_cbc_essiv_scheme(component)
 
     note_ids := ["12-UniqueSectorNumber", "13-AddressSectorNumber", "14-CBCMalleability"]
@@ -193,13 +164,18 @@ findings contains finding if {
         note := get_note(SECTION, SUBSECTION, id) ]
 
     finding := build_finding(
-        "ECCG-DISK-005",
+        "ECCG-DISK-004",
         "warning",
-        "CBC-ESSIV requires each disk sector to use a unique sector number under a given key. Note that currently it's not possible to detect these schemes accurately through CBOM. There might be some false positives.",
+        sprintf(
+            "CBC-ESSIV scheme detected: %s. Ensure that every disk sector has a unique sector number across all disks encrypted under the same key, particularly when sector numbers are derived from logical storage addresses. CBC-ESSIV does not provide integrity protection and is vulnerable to ciphertext manipulation, potentially allowing attackers to produce meaningful changes after decryption. If such attacks are a concern, stronger disk encryption mechanisms should be adopted.",
+            [get_component_name_or_empty(component)]
+        ),
         component,
-        {
-            "notes": notes,
-            "status": "legacy"
-        }
+        object.union(
+            symmetric_encryption_scheme_metadata(component),
+            {
+                "notes": notes,
+            }
+        )
     )
 }

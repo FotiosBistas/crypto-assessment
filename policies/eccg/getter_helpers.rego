@@ -24,7 +24,6 @@ get_note(section, subsection, note_string_id) := note if {
     "text": "Note not found"
 }
 
-
 get_component_name_or_empty(component) := name if {
     name := object.get(component, "name", "")
     is_string(name)

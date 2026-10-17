@@ -11,7 +11,6 @@ import data.cbom.eccg.classifying_helpers.is_block_cipher_primitive
 import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_empty
 import data.cbom.eccg.getter_helpers.get_note
 
-import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.AGREED_BLOCK_CIPHER_ALGORITHM_NAMES
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.TRIPLE_DES_REQUIRED_KEY_BITS
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.TRIPLE_DES_LEGACY_MARKER
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.AES_ALLOWED_KEY_SIZES
@@ -23,6 +22,7 @@ import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.block_ci
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.is_agreed_block_cipher_component
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.is_allowed_aes_key_size
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.is_block_cipher_key_size_above_quantum_sensitive_threshold
+import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers.AGREED_BLOCK_CIPHER_ALGORITHM_NAMES
 
 
 #
