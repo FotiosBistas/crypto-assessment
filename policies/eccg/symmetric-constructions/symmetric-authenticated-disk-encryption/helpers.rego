@@ -48,6 +48,8 @@ import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encry
 import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption.constants.GCM_AE_ALGORITHM_NAMES
 import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption.constants.XTS_DISK_ENCRYPTION_SCHEME_NAMES
 
+import data.cbom.eccg.symmetric_constructions.key_protection.helpers.is_agreed_key_protection_scheme
+
 
 symmetric_encryption_scheme_metadata(component) := {
     "primitive": get_component_primitive_or_empty(component), 
@@ -301,12 +303,14 @@ is_agreed_authenticated_encryption_scheme(component) if {
 #}
 
 
-is_agreed_symmetric_encryption_or_authenticated_encryption_or_disk_encryption_scheme(component) if {
+is_agreed_symmetric_encryption_or_authenticated_encryption_or_disk_encryption_or_key_protection_scheme(component) if {
     is_agreed_symmetric_encryption_scheme(component)
 } else if {
     is_agreed_authenticated_encryption_scheme(component)
 } else if {
     is_agreed_disk_encryption_scheme(component)
+} else if {
+    is_agreed_key_protection_scheme(component)
 }
 
 

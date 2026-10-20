@@ -8,7 +8,7 @@ import data.cbom.eccg.general_helpers.build_finding
 import data.cbom.eccg.classifying_helpers.is_symmetric_encryption_scheme
 
 import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.is_agreed_symmetric_encryption_scheme
-import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.is_agreed_symmetric_encryption_or_authenticated_encryption_or_disk_encryption_scheme
+import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.is_agreed_symmetric_encryption_or_authenticated_encryption_or_disk_encryption_or_key_protection_scheme
 import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.symmetric_encryption_scheme_metadata
 import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.get_iv_requirement_message
 import data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.helpers.is_gcm_scheme
@@ -34,7 +34,7 @@ findings contains finding if {
     component := input.components[component_index]
     
     is_symmetric_encryption_scheme(component)
-    not is_agreed_symmetric_encryption_or_authenticated_encryption_or_disk_encryption_scheme(component)
+    not is_agreed_symmetric_encryption_or_authenticated_encryption_or_disk_encryption_or_key_protection_scheme(component)
 
     finding := build_finding(
         "ECCG-SYM-ENC-001",
