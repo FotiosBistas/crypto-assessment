@@ -78,7 +78,7 @@ findings contains finding if {
         "ECCG-KDF-002",
         "warning",
         sprintf(
-            "PBKDF2 scheme detected: %s. Ensure that the underlying pseudo-random function (PRF) is an agreed cryptographic mechanism. If HMAC is used, verify that the HMAC key length does not exceed the underlying hash function's message block length without considering the security implications. Longer keys are pre-hashed, which may reduce the effective entropy of the key derived using PBKDF2.",
+            "PBKDF2 scheme detected: %s. Ensure that the underlying pseudo-random function (PRF) is an agreed cryptographic mechanism. If HMAC is used, verify that the HMAC key length does not exceed the underlying hash function's message block length without considering the security implications. Longer keys are pre-hashed, which may reduce the effective entropy of the key derived using PBKDF2. Note that this might overlap with password-hashing, since they mostly use the same underlying primitives.",
             [get_component_name_or_empty(component)]
         ),
         component,

@@ -40,7 +40,7 @@ findings contains finding if {
         "ECCG-SYM-ENC-001",
         "critical",
         sprintf(
-            "Symmetric encryption scheme '%s' is not in the agreed scheme list %s. ",
+            "Symmetric encryption scheme '%s' is not in the agreed scheme list %s.",
             [component.name, AGREED_SYMMETRIC_ENCRYPTION_SCHEME_NAMES]
         ),
         component,
