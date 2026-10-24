@@ -2,6 +2,7 @@ package cbom.eccg.symmetric_constructions.mac
 
 
 import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+import data.cbom.eccg.getter_helpers.get_component_bom_ref_or_empty
 import data.cbom.eccg.getter_helpers.get_note
 
 import data.cbom.eccg.classifying_helpers.is_mac_primitive
@@ -9,6 +10,7 @@ import data.cbom.eccg.classifying_helpers.is_mac_primitive
 import data.cbom.eccg.general_helpers.build_finding
 
 import data.cbom.eccg.symmetric_constructions.macs.helpers.is_agreed_mac_scheme
+import data.cbom.eccg.symmetric_constructions.macs.helpers.is_possible_mac_encryption_composition
 import data.cbom.eccg.symmetric_constructions.macs.helpers.is_cbcmac_scheme
 import data.cbom.eccg.symmetric_constructions.macs.helpers.is_hmac_or_kmac_scheme
 import data.cbom.eccg.symmetric_constructions.macs.helpers.is_gmac_scheme
@@ -354,6 +356,61 @@ findings contains finding if {
             mac_scheme_metadata(component),
             {
                 "notes": note,
+            }
+        )
+    )
+}
+
+# ------------------------------------------------------------
+# ECCG-AE-001
+# Potential non-agreed encryption/MAC composition.
+#
+# ECCG Section 3.5 recommends Encrypt-then-MAC, while
+# MAC-then-Encrypt and Encrypt-and-MAC are marked L[2025].
+#
+# Detection heuristic:
+# 1. Identify a symmetric encryption primitive.
+# 2. Identify a MAC primitive.
+# 3. Check whether their source-code occurrences are within
+#    the configured line-distance window in the same file.
+#
+# Example:
+#   crypto.py:20 -> AES-CBC
+#   crypto.py:27 -> HMAC-SHA256
+#
+# These occurrences may indicate:
+#   - MAC-then-Encrypt (not agreed after 2025)
+#   - Encrypt-and-MAC  (not agreed after 2025)
+#   - Encrypt-then-MAC (recommended)
+#
+# Source-code proximity cannot distinguish these schemes.
+# Therefore, report a warning requiring manual verification,
+# not a confirmed compliance violation.
+# ------------------------------------------------------------
+findings contains finding if {
+    some component_a in input.components
+    some component_b in input.components
+
+    is_possible_mac_encryption_composition(
+        component_a,
+        component_b
+    )
+
+    finding := build_finding(
+        "ECCG-MAC-001",
+        "warning",
+        sprintf(
+            "Encryption primitive '%s' and MAC primitive '%s' occur in close source-code proximity. Verify that the implementation uses an ECCG-agreed composition, meaning Encrypt-then-MAC.",
+            [component_a.name, component_b.name]
+        ),
+        component_a,
+        object.union(
+            mac_scheme_metadata(component_b),
+            {
+                "status": "composition-unverified",
+                "relatedComponent": get_component_bom_ref_or_empty(component_b),
+                "method": "occurrence-proximity",
+                "heuristic": true
             }
         )
     )

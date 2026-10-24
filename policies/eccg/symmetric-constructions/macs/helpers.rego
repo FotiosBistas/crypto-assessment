@@ -10,6 +10,9 @@ import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_n
 import data.cbom.eccg.getter_helpers.get_component_primitive_or_empty
 
 import data.cbom.eccg.classifying_helpers.is_mac_primitive
+import data.cbom.eccg.classifying_helpers.is_symmetric_encryption_scheme
+
+import data.cbom.eccg.relationship_helpers.components_share_evidence_window
 
 
 import data.cbom.eccg.symmetric_constructions.macs.constants.HMAC_MAC_ALGORITHM_NAMES
@@ -163,6 +166,34 @@ is_hmac_or_kmac_scheme(component) if {
     is_agreed_hmac_scheme(component)
 } else if {
     is_agreed_kmac_scheme(component)
+}
+
+# Detect a possible encryption/MAC composition using source-code
+# proximity.
+#
+# Conditions:
+# 1. One component is a symmetric encryption primitive.
+# 2. The other component is a MAC primitive.
+# 3. Both have occurrences within 15 lines in the same file.
+#
+# Example:
+#   crypto.py:20 -> AES-CBC
+#   crypto.py:27 -> HMAC-SHA256
+#
+# This may indicate:
+#   - MAC-then-Encrypt
+#   - Encrypt-and-MAC
+#   - Encrypt-then-MAC
+#
+# The actual construction cannot be determined from proximity.
+is_possible_mac_encryption_composition(component_a, component_b) if {
+    is_symmetric_encryption_scheme(component_a)
+    is_mac_primitive(component_b)
+
+    components_share_evidence_window(
+        [component_a, component_b],
+        15
+    )
 }
 
 TEMP_MAC_ALGORITHM_NAMES := 
