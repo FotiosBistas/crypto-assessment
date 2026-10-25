@@ -1,7 +1,8 @@
 package cbom.eccg.asymmetric_constructions.asymmetric_encryption
 
-import data.cbom.eccg.helpers.build_finding
-import data.cbom.eccg.helpers.get_note
+import data.cbom.eccg.general_helpers.build_finding
+
+import data.cbom.eccg.getter_helpers.get_note
 
 import data.cbom.eccg.asymmetric_constructions.helpers.LEGACY_ASYMMETRIC_ENCRYPTION_SCHEME
 import data.cbom.eccg.asymmetric_constructions.helpers.RECOMMENDED_ASYMMETRIC_ENCRYPTION_SCHEME

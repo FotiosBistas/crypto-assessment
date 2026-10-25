@@ -1,16 +1,17 @@
 package cbom.eccg.asymmetric_atomic_primitives.helpers
 
-import data.cbom.eccg.helpers.is_public_key_primitive
-import data.cbom.eccg.helpers.is_asymmetric_algorithm
-import data.cbom.eccg.helpers.get_name_or_unknown
-import data.cbom.eccg.helpers.normalize_crypto_name
-import data.cbom.eccg.helpers.normalize_ec_curve_name
-import data.cbom.eccg.helpers.get_ec_curve_or_unknown
-import data.cbom.eccg.helpers.get_parameter_set_identifier_to_number_or_unknown
-import data.cbom.eccg.helpers.get_note
-import data.cbom.eccg.helpers.legacy_marker_status
-import data.cbom.eccg.helpers.legacy_status_message
-import data.cbom.eccg.helpers.legacy_status_severity
+import data.cbom.eccg.classifying_helpers.is_asymmetric_algorithm
+import data.cbom.eccg.classifying_helpers.is_public_key_primitive
+
+import data.cbom.eccg.general_helpers.legacy_marker_status
+import data.cbom.eccg.general_helpers.legacy_status_message
+import data.cbom.eccg.general_helpers.legacy_status_severity
+import data.cbom.eccg.general_helpers.normalize_crypto_identifier
+
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_negative_one
+import data.cbom.eccg.getter_helpers.get_ec_curve_or_empty
+import data.cbom.eccg.getter_helpers.get_note
 
 #
 # ---------------------------------------------------------
@@ -101,15 +102,15 @@ eccg_recommended_ec_curve_names contains "ed448"
 
 is_rsa_primitive(component) if {
     is_public_key_primitive(component)
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
     contains(normalized_name, "rsa")
 } else if {
     component.cryptoProperties.assetType == "algorithm"
 
     props := component.cryptoProperties.algorithmProperties
     family := object.get(props, "algorithmFamily", "")
-    normalized_family := normalize_crypto_name(family)
+    normalized_family := normalize_crypto_identifier(family)
 
     contains(normalized_family, "rsa")
 } else if {
@@ -119,13 +120,13 @@ is_rsa_primitive(component) if {
     primitive := lower(object.get(props, "primitive", ""))
     primitive == "signature"
 
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
     contains(normalized_name, "rsa")
 } else if {
     is_asymmetric_algorithm(component)
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
     contains(normalized_name, "rsa")
 }
 
@@ -228,14 +229,14 @@ rsa_modulus_notes(n) := note if {
 # ---------------------------------------------------------
 #
 is_ffdlog_primitive(component) if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     # Explicit FF-DLOG naming
     contains(normalized_name, "ffdlog")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     # CycloneDX FFDH family / FFDHE groups (e.g., FFDH-ffdhe3072)
     # → Direct mapping to FF-DLOG
@@ -244,20 +245,20 @@ is_ffdlog_primitive(component) if {
     props := component.cryptoProperties.algorithmProperties
 
     family := object.get(props, "algorithmFamily", "")
-    normalized_family := normalize_crypto_name(family)
+    normalized_family := normalize_crypto_identifier(family)
 
     # CycloneDX cryptography registry family.
     normalized_family == "ffdh"
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     # FFDHE groups (e.g., ffdhe2048, ffdhe3072)
     # → Direct mapping to FF-DLOG
     contains(normalized_name, "ffdhe")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     # MODP groups (RFC3526)
     contains(normalized_name, "modp")
@@ -265,14 +266,14 @@ is_ffdlog_primitive(component) if {
     props := component.cryptoProperties.algorithmProperties
 
     family := object.get(props, "algorithmFamily", "")
-    normalized_family := normalize_crypto_name(family)
+    normalized_family := normalize_crypto_identifier(family)
 
     contains(normalized_family, "ffdlog")
 } else if {
     props := component.cryptoProperties.algorithmProperties
 
     primitive := object.get(props, "primitive", "")
-    normalized_primitive := normalize_crypto_name(primitive)
+    normalized_primitive := normalize_crypto_identifier(primitive)
 
     contains(normalized_primitive, "ffdlog")
 } else if {
@@ -281,8 +282,8 @@ is_ffdlog_primitive(component) if {
     #
     # Only match DH after excluding elliptic-curve variants.
     #
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     not contains(normalized_name, "ecdh")
     not contains(normalized_name, "ecdhe")
@@ -296,8 +297,8 @@ is_ffdlog_primitive(component) if {
     #
     # Only match DH after excluding elliptic-curve variants.
     #
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     not contains(normalized_name, "ecdh")
     not contains(normalized_name, "ecdhe")
@@ -327,41 +328,41 @@ is_ffdlog_primitive(component) if {
 # ---------------------------------------------------------
 #
 get_ffdlog_group_family_or_unknown(component) := "MODP" if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
     contains(normalized_name, "modp")
 } else := "FFDHE" if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
     contains(normalized_name, "ffdhe")
 } else := "MODP" if {
     props := component.cryptoProperties.algorithmProperties
     family := object.get(props, "algorithmFamily", "")
-    normalized_family := normalize_crypto_name(family)
+    normalized_family := normalize_crypto_identifier(family)
     contains(normalized_family, "modp")
 } else := "FFDHE" if {
     props := component.cryptoProperties.algorithmProperties
     family := object.get(props, "algorithmFamily", "")
-    normalized_family := normalize_crypto_name(family)
+    normalized_family := normalize_crypto_identifier(family)
     contains(normalized_family, "ffdhe")
 } else := "FFDHE" if {
     props := component.cryptoProperties.algorithmProperties
     family := object.get(props, "algorithmFamily", "")
-    normalized_family := normalize_crypto_name(family)
+    normalized_family := normalize_crypto_identifier(family)
     normalized_family == "ffdh"
 
     parameter_set := object.get(props, "parameterSetIdentifier", "")
-    normalized_parameter_set := normalize_crypto_name(parameter_set)
+    normalized_parameter_set := normalize_crypto_identifier(parameter_set)
     contains(normalized_parameter_set, "ffdhe")
 } else := "MODP" if {
     props := component.cryptoProperties.algorithmProperties
     parameter_set := object.get(props, "parameterSetIdentifier", "")
-    normalized_parameter_set := normalize_crypto_name(parameter_set)
+    normalized_parameter_set := normalize_crypto_identifier(parameter_set)
     contains(normalized_parameter_set, "modp")
 } else := "FFDHE" if {
     props := component.cryptoProperties.algorithmProperties
     parameter_set := object.get(props, "parameterSetIdentifier", "")
-    normalized_parameter_set := normalize_crypto_name(parameter_set)
+    normalized_parameter_set := normalize_crypto_identifier(parameter_set)
     contains(normalized_parameter_set, "ffdhe")
 } else := "unknown"
 
@@ -390,8 +391,8 @@ is_eccg_agreed_ffdlog_group_family(component) if {
 # ---------------------------------------------------------
 #
 get_ffdlog_group_bits_or_unknown(component) := bits if {
-    bits := get_parameter_set_identifier_to_number_or_unknown(component)
-    bits != "unknown"
+    bits := get_component_parameter_set_identifier_to_number_or_negative_one(component)
+    bits != -1
 } else := 2048 if {
     ffdlog_group_size_token_present(component, "2048")
 } else := 3072 if {
@@ -405,13 +406,13 @@ get_ffdlog_group_bits_or_unknown(component) := bits if {
 } else := "unknown"
 
 ffdlog_group_size_token_present(component, token) if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
     contains(normalized_name, token)
 } else if {
     props := component.cryptoProperties.algorithmProperties
     parameter_set := object.get(props, "parameterSetIdentifier", "")
-    normalized_parameter_set := normalize_crypto_name(parameter_set)
+    normalized_parameter_set := normalize_crypto_identifier(parameter_set)
     contains(normalized_parameter_set, token)
 }
 
@@ -501,8 +502,8 @@ ff_dlog_size_notes(p_bits) := notes if {
 # ---------------------------------------------------------
 #
 is_ecdlog_primitive(component) if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "ecdlog")
 } else if {
@@ -510,62 +511,62 @@ is_ecdlog_primitive(component) if {
 
     props := object.get(component.cryptoProperties, "algorithmProperties", {})
     primitive := object.get(props, "primitive", "")
-    normalized_primitive := normalize_crypto_name(primitive)
+    normalized_primitive := normalize_crypto_identifier(primitive)
 
     contains(normalized_primitive, "ecdlog")
 } else if {
     component.cryptoProperties.assetType == "algorithm"
 
-    curve := get_ec_curve_or_unknown(component)
-    curve != "unknown"
+    curve := get_ec_curve_or_empty(component)
+    curve != ""
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "ecdh")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "ecdhe")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "x25519")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "x448")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "ecdsa")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "eddsa")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "ed25519")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "ed448")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "ecies")
 } else if {
-    name := get_name_or_unknown(component)
-    normalized_name := normalize_crypto_name(name)
+    name := get_component_name_or_empty(component)
+    normalized_name := normalize_crypto_identifier(name)
 
     contains(normalized_name, "ecelgamal")
 }
@@ -601,7 +602,7 @@ is_ecdlog_primitive(component) if {
 # ---------------------------------------------------------
 #
 is_eccg_recommended_ec_curve(curve) if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
     normalized in eccg_recommended_ec_curve_names
 }
 
@@ -620,10 +621,10 @@ is_eccg_recommended_ec_curve(curve) if {
 # ---------------------------------------------------------
 #
 get_eccg_ec_curve_family_or_unknown(curve) := "Brainpool [RFC5639]" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
     startswith(normalized, "brainpool")
 } else := "NIST [FIPS186-4, Appendix D.1.2]" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
 
     some alias in {
         "nistp256",
@@ -644,7 +645,7 @@ get_eccg_ec_curve_family_or_unknown(curve) := "Brainpool [RFC5639]" if {
 
     normalized == alias
 } else := "FR [JORF]" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
 
     some alias in {
         "anssifrp256v1",
@@ -673,7 +674,7 @@ get_eccg_ec_curve_family_or_unknown(curve) := "Brainpool [RFC5639]" if {
 # ---------------------------------------------------------
 #
 get_eccg_canonical_ec_curve_or_unknown(curve) := "BrainpoolP256r1" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
 
     some alias in {
         "brainpoolbrainpoolp256r1",
@@ -682,7 +683,7 @@ get_eccg_canonical_ec_curve_or_unknown(curve) := "BrainpoolP256r1" if {
 
     normalized == alias
 } else := "BrainpoolP384r1" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
 
     some alias in {
         "brainpoolbrainpoolp384r1",
@@ -691,7 +692,7 @@ get_eccg_canonical_ec_curve_or_unknown(curve) := "BrainpoolP256r1" if {
 
     normalized == alias
 } else := "BrainpoolP512r1" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
 
     some alias in {
         "brainpoolbrainpoolp512r1",
@@ -700,7 +701,7 @@ get_eccg_canonical_ec_curve_or_unknown(curve) := "BrainpoolP256r1" if {
 
     normalized == alias
 } else := "NIST P-256" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
 
     some alias in {
         "nistp256",
@@ -713,7 +714,7 @@ get_eccg_canonical_ec_curve_or_unknown(curve) := "BrainpoolP256r1" if {
 
     normalized == alias
 } else := "NIST P-384" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
 
     some alias in {
         "nistp384",
@@ -724,7 +725,7 @@ get_eccg_canonical_ec_curve_or_unknown(curve) := "BrainpoolP256r1" if {
 
     normalized == alias
 } else := "NIST P-521" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
 
     some alias in {
         "nistp521",
@@ -735,7 +736,7 @@ get_eccg_canonical_ec_curve_or_unknown(curve) := "BrainpoolP256r1" if {
 
     normalized == alias
 } else := "FRP256v1" if {
-    normalized := normalize_ec_curve_name(curve)
+    normalized := normalize_crypto_identifier(curve)
 
     some alias in {
         "anssifrp256v1",

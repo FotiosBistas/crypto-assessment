@@ -1,14 +1,15 @@
 package cbom.eccg.asymmetric_atomic_primitives.ec_dlog
 
-import data.cbom.eccg.helpers.get_note
-import data.cbom.eccg.helpers.build_finding
-import data.cbom.eccg.helpers.get_ec_curve_or_unknown
+import data.cbom.eccg.general_helpers.build_finding
 
-import data.cbom.eccg.asymmetric_atomic_primitives.helpers.is_ecdlog_primitive
-import data.cbom.eccg.asymmetric_atomic_primitives.helpers.is_eccg_recommended_ec_curve
-import data.cbom.eccg.asymmetric_atomic_primitives.helpers.get_eccg_ec_curve_family_or_unknown
+import data.cbom.eccg.getter_helpers.get_ec_curve_or_empty
+import data.cbom.eccg.getter_helpers.get_note
+
 import data.cbom.eccg.asymmetric_atomic_primitives.helpers.get_eccg_canonical_ec_curve_or_unknown
+import data.cbom.eccg.asymmetric_atomic_primitives.helpers.get_eccg_ec_curve_family_or_unknown
 import data.cbom.eccg.asymmetric_atomic_primitives.helpers.is_eccg_nist_special_p_curve
+import data.cbom.eccg.asymmetric_atomic_primitives.helpers.is_eccg_recommended_ec_curve
+import data.cbom.eccg.asymmetric_atomic_primitives.helpers.is_ecdlog_primitive
 
 SECTION = "Asymmetric-Atomic-Primitives"
 SUBSECTION = "EC-DLOG"
@@ -39,8 +40,8 @@ findings contains finding if {
 
     is_ecdlog_primitive(component)
 
-    curve := get_ec_curve_or_unknown(component)
-    curve != "unknown"
+    curve := get_ec_curve_or_empty(component)
+    curve != ""
 
     is_eccg_recommended_ec_curve(curve)
     is_eccg_nist_special_p_curve(curve)
@@ -108,8 +109,8 @@ findings contains finding if {
 
     is_ecdlog_primitive(component)
 
-    curve := get_ec_curve_or_unknown(component)
-    curve != "unknown"
+    curve := get_ec_curve_or_empty(component)
+    curve != ""
 
     not is_eccg_recommended_ec_curve(curve)
 

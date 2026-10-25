@@ -1,4 +1,4 @@
-package cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption_schemes.constants
+package cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption.constants
 
 SEAS_CHALLENGE_SIZE_REQUIRED_BITS := 125
 GCM_INITIALIZATION_VECTOR_REQUIRED_BITS := 96

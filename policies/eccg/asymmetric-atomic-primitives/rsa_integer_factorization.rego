@@ -1,15 +1,16 @@
 package cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization
 
-import data.cbom.eccg.helpers.build_finding
-import data.cbom.eccg.helpers.evaluation_year
-import data.cbom.eccg.helpers.get_parameter_set_identifier_to_number_or_unknown
+import data.cbom.eccg.general_helpers.build_finding
+import data.cbom.eccg.general_helpers.evaluation_year
+
+import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_negative_one
 
 import data.cbom.eccg.asymmetric_atomic_primitives.helpers.RSA_LEGACY_MARKER
+import data.cbom.eccg.asymmetric_atomic_primitives.helpers.is_rsa_primitive
 import data.cbom.eccg.asymmetric_atomic_primitives.helpers.rsa_modulus_message
 import data.cbom.eccg.asymmetric_atomic_primitives.helpers.rsa_modulus_notes
 import data.cbom.eccg.asymmetric_atomic_primitives.helpers.rsa_modulus_severity
 import data.cbom.eccg.asymmetric_atomic_primitives.helpers.rsa_modulus_status
-import data.cbom.eccg.asymmetric_atomic_primitives.helpers.is_rsa_primitive
 
 #
 # ---------------------------------------------------------
@@ -32,8 +33,8 @@ findings contains finding if {
 
     is_rsa_primitive(component)
 
-    n := get_parameter_set_identifier_to_number_or_unknown(component)
-    n != "unknown"
+    n := get_component_parameter_set_identifier_to_number_or_negative_one(component)
+    n != -1
     n < 3000
 
     status := rsa_modulus_status(n)
@@ -78,8 +79,8 @@ findings contains finding if {
 
     is_rsa_primitive(component)
 
-    n := get_parameter_set_identifier_to_number_or_unknown(component)
-    n == "unknown"
+    n := get_component_parameter_set_identifier_to_number_or_negative_one(component)
+    n == -1
 
     finding := build_finding(
         "ECCG-RSA-001",

@@ -1,4 +1,4 @@
-package data.cbom.eccg.symmetric_constructions.macs.constants 
+package cbom.eccg.symmetric_constructions.macs.constants
 
 MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_MACS := 192
 MINIMUM_MAC_BITS_TRUNCATED_OUTPUT := 96

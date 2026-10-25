@@ -1,7 +1,8 @@
 package cbom.eccg.asymmetric_constructions.key_establishment_key_encapsulation
 
-import data.cbom.eccg.helpers.build_finding
-import data.cbom.eccg.helpers.get_note
+import data.cbom.eccg.general_helpers.build_finding
+
+import data.cbom.eccg.getter_helpers.get_note
 
 import data.cbom.eccg.asymmetric_constructions.helpers.get_key_establishment_scheme_display_name
 import data.cbom.eccg.asymmetric_constructions.helpers.is_eccg_agreed_key_establishment_scheme

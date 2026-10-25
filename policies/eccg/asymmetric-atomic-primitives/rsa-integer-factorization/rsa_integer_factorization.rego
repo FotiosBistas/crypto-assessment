@@ -1,13 +1,16 @@
-package data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization
-
-import data.cbom.eccg.getter_helpers.get_note
-
-import data.cbom.eccg.general_helpers.build_finding
+package cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization
 
 import data.cbom.eccg.classifying_helpers.is_public_key_eccg_primitive
 
-import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.helpers.rsa_scheme_metadata
+import data.cbom.eccg.general_helpers.build_finding
+
+import data.cbom.eccg.getter_helpers.get_note
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+
 import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.helpers.is_agreed_rsa_scheme
+import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.helpers.rsa_scheme_metadata
+
+import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.constants.MINIMUM_RSA_MODULUS_LENGTH
 
 RSA_SECTION := "Assymetric-Atomic-Primitives"
 RSA_SUBSECTION := "RSA-Integer-Factorization"
@@ -34,12 +37,12 @@ findings contains finding if {
     is_public_key_eccg_primitive(component)
     not is_agreed_rsa_scheme(component)
 
-    note := get_note(RSA, RSA_SUBSECTION, "30-LegacyRSA")
+    note := get_note(RSA_SECTION, RSA_SUBSECTION, "30-LegacyRSA")
 
     finding := build_finding(
         "ECCG-RSA-001",
         "critical",
-        message,
+        sprintf("%s scheme detected. Make sure to use >= %d modulus bitlength.", [get_component_name_or_empty(component), MINIMUM_RSA_MODULUS_LENGTH]),
         component,
         object.union(
             rsa_scheme_metadata(component),

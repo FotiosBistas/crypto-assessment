@@ -1,7 +1,8 @@
 package cbom.eccg.asymmetric_constructions.digital_signature
 
-import data.cbom.eccg.helpers.build_finding
-import data.cbom.eccg.helpers.get_note
+import data.cbom.eccg.general_helpers.build_finding
+
+import data.cbom.eccg.getter_helpers.get_note
 
 import data.cbom.eccg.asymmetric_constructions.helpers.eccg_recommended_signature_scheme_display_names
 import data.cbom.eccg.asymmetric_constructions.helpers.eccg_recommended_signature_schemes

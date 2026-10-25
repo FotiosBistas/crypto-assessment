@@ -1,4 +1,4 @@
-package data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.constants 
+package cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.constants
 
 MINIMUM_RSA_MODULUS_LENGTH = 3000
 

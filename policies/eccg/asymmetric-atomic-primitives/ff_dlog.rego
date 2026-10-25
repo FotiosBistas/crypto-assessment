@@ -1,7 +1,7 @@
 package cbom.eccg.asymmetric_atomic_primitives.ff_dlog
 
-import data.cbom.eccg.helpers.build_finding
-import data.cbom.eccg.helpers.evaluation_year
+import data.cbom.eccg.general_helpers.build_finding
+import data.cbom.eccg.general_helpers.evaluation_year
 
 import data.cbom.eccg.asymmetric_atomic_primitives.helpers.FFDLOG_LEGACY_MARKER
 import data.cbom.eccg.asymmetric_atomic_primitives.helpers.ff_dlog_size_message

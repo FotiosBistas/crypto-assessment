@@ -1,17 +1,17 @@
-package data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.helpers
-
-import data.cbom.eccg.general_helpers.normalize_crypto_identifier
+package cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.helpers
 
 import data.cbom.eccg.classifying_helpers.is_public_key_eccg_primitive
 
-import data.cbom.eccg.getter_helpers.get_component_oid_or_empty
-import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+import data.cbom.eccg.general_helpers.normalize_crypto_identifier
+
 import data.cbom.eccg.getter_helpers.get_component_algorithm_family_or_empty
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+import data.cbom.eccg.getter_helpers.get_component_oid_or_empty
 import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_negative_one
 
+import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.constants.MINIMUM_RSA_MODULUS_LENGTH
 import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.constants.RSA_PRIMITIVE_FAMILIES
 import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.constants.RSA_PRIMITIVE_OID_VALUES
-import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.constants.MINIMUM_RSA_MODULUS_LENGTH
 
 
 rsa_scheme_metadata(component) := {
