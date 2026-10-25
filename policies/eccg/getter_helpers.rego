@@ -36,7 +36,47 @@ get_component_bom_ref_or_empty(component) := bom_ref if {
     bom_ref != ""
 } else := ""
 
+get_component_additional_context_or_empty(component) := additional_context if {
+    additional_context := object.get(component, "additionalContext", "")
+    is_string(additional_context)
+    additional_context != ""
+} else := ""
 
+
+# Retrieve the dependency entry associated with a specific component.
+#
+# This helper obtains the component's "bom-ref" and searches the CBOM's
+# top-level "dependencies" array for an entry whose "ref" matches it.
+#
+# Example:
+#   Component:
+#     {"bom-ref": "hybrid-kdf", "name": "Hybrid Key Derivation"}
+#
+#   CBOM dependencies:
+#     [
+#       {
+#         "ref": "hybrid-kdf",
+#         "dependsOn": ["hkdf", "hmac"]
+#       },
+#       {
+#         "ref": "hkdf",
+#         "dependsOn": []
+#       }
+#     ]
+#
+#   get_component_dependency(component)
+#     => {
+#          "ref": "hybrid-kdf",
+#          "dependsOn": ["hkdf", "hmac"]
+#        }
+#
+# Returns an empty object ({}) if the component has no "bom-ref",
+# no matching dependency entry exists, or the dependencies field
+# is missing or is not an array.
+#
+# Note: The helper returns the complete dependency entry, not just
+# the "dependsOn" references. It assumes at most one matching entry
+# exists for each component's "bom-ref".
 get_component_dependency(component) := dependency if {
     bom_ref := get_component_bom_ref_or_empty(component)
     bom_ref != ""
@@ -50,6 +90,79 @@ get_component_dependency(component) := dependency if {
     dep_ref := object.get(dependency, "ref", "")
     dep_ref == bom_ref
 } else := {}
+
+# Retrieve the bom-ref values of a component's direct dependencies.
+#
+# This helper looks up the component's dependency entry in the CBOM
+# and extracts the "dependsOn" array.
+#
+# Example:
+#   Component:
+#     {"bom-ref": "hybrid-kdf", "name": "Hybrid Key Derivation"}
+#
+#   CBOM dependencies:
+#     {
+#       "ref": "hybrid-kdf",
+#       "dependsOn": ["hkdf", "hmac"]
+#     }
+#
+#   get_component_dependency_refs_or_empty(component)
+#     => ["hkdf", "hmac"]
+#
+# Returns an empty array if the component has no dependency entry
+# or if the "dependsOn" field is missing or is not an array.
+#
+# Note: Only direct dependencies are returned, not transitive ones.
+get_component_dependency_refs_or_empty(component) := refs if {
+    dependency := get_component_dependency(component)
+
+    refs := object.get(dependency, "dependsOn", [])
+    is_array(refs)
+} else := []
+
+# Resolve a component's direct dependency references into component objects.
+#
+# This helper uses get_component_dependency_refs_or_empty() to retrieve
+# the dependency bom-refs, then searches input.components for matching
+# component objects.
+#
+# Example:
+#   CBOM components:
+#     [
+#       {"bom-ref": "hybrid-kdf", "name": "Hybrid Key Derivation"},
+#       {"bom-ref": "hkdf", "name": "HKDF"},
+#       {"bom-ref": "hmac", "name": "HMAC"}
+#     ]
+#
+#   CBOM dependencies:
+#     {
+#       "ref": "hybrid-kdf",
+#       "dependsOn": ["hkdf", "hmac"]
+#     }
+#
+#   get_component_dependency_components_or_empty(hybrid_component)
+#     => [
+#          {"bom-ref": "hkdf", "name": "HKDF"},
+#          {"bom-ref": "hmac", "name": "HMAC"}
+#        ]
+#
+# Returns an empty array if no dependency components can be resolved.
+# Dependency references without matching entries in input.components
+# are ignored.
+#
+# Note: Only direct dependencies are resolved, not transitive ones.
+get_component_dependency_components_or_empty(component) := results if {
+    refs := get_component_dependency_refs_or_empty(component)
+
+    components := object.get(input, "components", [])
+
+    results := [dep_component |
+        some ref in refs
+        some dep_component in components
+
+        get_component_bom_ref_or_empty(dep_component) == ref
+    ]
+}
 
 get_component_related_crypto_material_properties_or_empty(component) := related_crypto_material_properties if {
     related_crypto_material_properties := object.get(component, "relatedCryptoMaterialProperties", {})
@@ -166,11 +279,11 @@ get_component_parameter_set_identifier_or_empty(component) := parameter_set_iden
     parameter_set_identifier != ""
 } else := ""
 
-get_component_parameter_set_identifier_to_number_or_empty(component) := parameter_set_identifier_number if {
+get_component_parameter_set_identifier_to_number_or_negative_one(component) := parameter_set_identifier_number if {
     raw := get_component_parameter_set_identifier_or_empty(component)
     raw != ""
     parameter_set_identifier_number := to_number(raw)
-} else := ""
+} else := -1
 
 get_component_evidence_or_empty(component) := evidence if {
     evidence := object.get(component, "evidence", {})

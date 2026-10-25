@@ -60,6 +60,7 @@ is_block_cipher_or_ae_primitive(component) if {
     is_ae_primitive(component)
 }
 
+
 is_kdf_primitive(component) if {
     asset_type := get_component_asset_type_or_empty(component)
     asset_type in ["algorithm", "related-crypto-material"]
@@ -84,6 +85,12 @@ is_key_wrap_primitive(component) if {
     asset_type := get_component_asset_type_or_empty(component)
     asset_type in ["algorithm", "related-crypto-material"]
     get_component_primitive_or_empty(component) == "key-wrap"
+}
+
+is_key_wrap_or_ae_primitive(component) if {
+    is_key_wrap_primitive(component)
+} else if {
+    is_ae_primitive(component)
 }
 
 is_gcm_primitive(component) if {
@@ -137,10 +144,32 @@ is_key_agreement_primitive(component) if {
     get_component_primitive_or_empty(component) == "key-agree"
 }
 
-is_key_establishment_or_key_encapsulation_primitive(component) if {
+is_public_key_eccg_primitive(component) if {
+    is_pke_primitive(component)
+} else if {
+    is_signature_primitive(component)
+} else if {
+    is_kem_primitive(component)
+}
+
+# Both key encapsulation mechanisms and key agreement mechanisms can be used for key establishment
+# Key establishment can be achieved through:
+# - Key agreement (e.g., ECDH/X25519): Alice and Bob exchange public keys
+#   and independently derive the same shared secret.
+# - Key encapsulation (e.g., ML-KEM): Alice encapsulates a shared secret
+#   using Bob's public key and sends the ciphertext. Bob decapsulates
+#   it using his private key to recover the same shared secret.
+# Both mechanisms establish shared keying material.
+is_key_establishment_primitive(component) if {
     is_key_agreement_primitive(component)
 } else if {
     is_kem_primitive(component)
+}
+
+
+is_key_establishment_primitive(component) if {
+    name := get_component_mode_or_empty(component)
+    regex.match(`^(ecdh|ecdhe|x25519|x448|ml[-_]?kem|kyber)(-|_|$)`, name)
 }
 
 is_sign_crypto_function(component) if {

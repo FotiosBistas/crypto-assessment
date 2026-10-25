@@ -8,7 +8,7 @@ import data.cbom.eccg.general_helpers.evaluation_year
 
 import data.cbom.eccg.classifying_helpers.is_block_cipher_primitive
 
-import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_empty
+import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_negative_one
 import data.cbom.eccg.getter_helpers.get_note
 
 import data.cbom.eccg.symmetric_atomic_primitives.block_ciphers.constants.TRIPLE_DES_REQUIRED_KEY_BITS
@@ -74,7 +74,7 @@ findings contains finding if {
         "high",
         sprintf(
             "AES uses a non-agreed key size: %v bits. The allowed sizes are %v bits",
-            [get_component_parameter_set_identifier_to_number_or_empty(component), AES_ALLOWED_KEY_SIZES]
+            [get_component_parameter_set_identifier_to_number_or_negative_one(component), AES_ALLOWED_KEY_SIZES]
         ),
         component,
         object.union(
@@ -136,7 +136,7 @@ findings contains finding if {
     severity := legacy_status_severity(status)
     message := legacy_status_message("3DES", TRIPLE_DES_LEGACY_MARKER, status)
     # these are the maximum security bits not the key bits
-    get_component_parameter_set_identifier_to_number_or_empty(component) != TRIPLE_DES_REQUIRED_KEY_BITS
+    get_component_parameter_set_identifier_to_number_or_negative_one(component) != TRIPLE_DES_REQUIRED_KEY_BITS
 
     finding := build_finding(
         "ECCG-BLOCK-004",
@@ -144,7 +144,7 @@ findings contains finding if {
         sprintf(
             "3DES uses a non-agreed key size: %v bits. Required size is %d bits. %s.",
             [
-                get_component_parameter_set_identifier_to_number_or_empty(component), 
+                get_component_parameter_set_identifier_to_number_or_negative_one(component), 
                 TRIPLE_DES_REQUIRED_KEY_BITS, 
                 message
             ],
@@ -184,7 +184,7 @@ findings contains finding if {
         "medium",
         sprintf(
             "Cipher '%s' uses %v-bit keying, which is below %d bits and should be avoided where resistance to quantum attacks is required.",
-            [component.name, get_component_parameter_set_identifier_to_number_or_empty(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER]
+            [component.name, get_component_parameter_set_identifier_to_number_or_negative_one(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER]
         ),
         component,
         object.union(

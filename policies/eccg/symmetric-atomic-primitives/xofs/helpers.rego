@@ -3,7 +3,7 @@ package cbom.eccg.symmetric_atomic_primitives.xofs.helpers
 import data.cbom.eccg.classifying_helpers.is_xof_primitive
 
 import data.cbom.eccg.getter_helpers.get_component_oid_or_empty
-import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_empty
+import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_negative_one
 
 import data.cbom.eccg.general_helpers.normalize_crypto_identifier
 
@@ -14,7 +14,7 @@ import data.cbom.eccg.symmetric_atomic_primitives.xofs.constants.CSHAKE_XOF_ALGO
 import data.cbom.eccg.symmetric_atomic_primitives.xofs.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_XOF
 
 xof_primitive_metadata(component) := {
-    "xofBits": get_component_parameter_set_identifier_to_number_or_empty(component),
+    "xofBits": get_component_parameter_set_identifier_to_number_or_negative_one(component),
     "minimumRecommendedXofBitsForQuantumSensitiveContext": MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_XOF,
 }
 
@@ -71,7 +71,7 @@ is_agreed_xof_component(component) if {
 
 is_xof_output_size_above_quantum_sensitive_threshold(component) if {
     is_xof_primitive(component)
-    get_component_parameter_set_identifier_to_number_or_empty(component) >= MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_XOF
+    get_component_parameter_set_identifier_to_number_or_negative_one(component) >= MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_XOF
 }
 
 AGREED_XOF_ALGORITHM_NAMES := SHAKE_XOF_ALGORITHM_NAMES | CSHAKE_XOF_ALGORITHM_NAMES

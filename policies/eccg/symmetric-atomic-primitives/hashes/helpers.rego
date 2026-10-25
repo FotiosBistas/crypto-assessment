@@ -1,6 +1,6 @@
 package cbom.eccg.symmetric_atomic_primitives.hashes.helpers
 
-import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_empty
+import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_negative_one
 import data.cbom.eccg.getter_helpers.get_component_oid_or_empty
 
 import data.cbom.eccg.classifying_helpers.is_hash_primitive
@@ -14,7 +14,7 @@ import data.cbom.eccg.symmetric_atomic_primitives.hashes.constants.SHA3_HASH_ALG
 import data.cbom.eccg.symmetric_atomic_primitives.hashes.constants.MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH
 
 hash_primitive_metadata(component) := {
-    "hashBits": get_component_parameter_set_identifier_to_number_or_empty(component),
+    "hashBits": get_component_parameter_set_identifier_to_number_or_negative_one(component),
     "minimumRecommendedHashBitsForQuantumSensitiveContext": MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH,
 }
 
@@ -110,7 +110,7 @@ is_agreed_hash_component(component) if {
 
 is_hash_output_size_above_quantum_sensitive_threshold(component) if {
     is_hash_primitive(component)
-    get_component_parameter_set_identifier_to_number_or_empty(component) >= MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH
+    get_component_parameter_set_identifier_to_number_or_negative_one(component) >= MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH
 }
 
 AGREED_HASH_ALGORITHM_NAMES :=

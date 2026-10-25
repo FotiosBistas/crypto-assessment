@@ -6,7 +6,7 @@ import data.cbom.eccg.general_helpers.is_legacy_marker_active
 import data.cbom.eccg.getter_helpers.get_component_algorithm_family_or_empty
 import data.cbom.eccg.getter_helpers.get_component_oid_or_empty
 import data.cbom.eccg.getter_helpers.get_component_name_or_empty
-import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_empty
+import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_negative_one
 import data.cbom.eccg.getter_helpers.get_component_primitive_or_empty
 
 import data.cbom.eccg.classifying_helpers.is_mac_primitive
@@ -37,7 +37,7 @@ import data.cbom.eccg.symmetric_constructions.macs.constants.MINIMUM_MAC_BITS_TR
 mac_scheme_metadata(component) := {
     "primitive": get_component_primitive_or_empty(component),
     # this is the max security of the algorithm not the actual key bits
-    "keyBits": get_component_parameter_set_identifier_to_number_or_empty(component),
+    "keyBits": get_component_parameter_set_identifier_to_number_or_negative_one(component),
     "minimumMacBits": MINIMUM_MAC_BITS_TRUNCATED_OUTPUT,
     "minimumRecommendedBitsForQuantumSensitiveContext": MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_MACS,
 }
@@ -158,7 +158,7 @@ is_agreed_mac_scheme(component) if {
 
 is_mac_output_size_above_quantum_sensitive_threshold(component) if {
     is_mac_primitive(component)
-    get_component_parameter_set_identifier_to_number_or_empty(component) >= MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_MACS
+    get_component_parameter_set_identifier_to_number_or_negative_one(component) >= MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_MACS
 }
 
 
