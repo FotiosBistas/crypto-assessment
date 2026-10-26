@@ -53,8 +53,8 @@ build_finding(rule_id, severity_level, message_text, component, extra_fields) :=
 normalize_crypto_identifier(name) := normalized if {
     lower_name := lower(name)
     normalized := regex.replace(
-        "[\\s()/_#.\\-\\\\]",
         lower_name,
+        "[\\s()/_#.\\-\\\\]",
         ""
     )
 }

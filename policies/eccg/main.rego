@@ -1,6 +1,6 @@
 package cbom.eccg
 
-default compliant := true
+default compliant := false
 
 compliant if count(findings) == 0
 
@@ -38,12 +38,12 @@ policy_sources := [
     {
         "section": "Symmetric Constructions",
         "subsection": "AES Modes",
-        "findings": data.cbom.eccg.symmetric_constructions.aes_modes.findings
+        "findings": data.cbom.eccg.symmetric_constructions.symmetric_encryption_schemes.aes_modes.findings
     },
     {
         "section": "Symmetric Constructions",
         "subsection": "Authenticated Encryption",
-        "findings": data.cbom.eccg.symmetric_constructions.authenticated_encryption.findings
+        "findings": data.cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption.authenticated_encryption.findings
     },
     {
         "section": "Symmetric Constructions",

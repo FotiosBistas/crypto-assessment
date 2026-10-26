@@ -1,28 +1,24 @@
 package cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization
 
-import data.cbom.eccg.classifying_helpers.is_public_key_eccg_primitive
-
 import data.cbom.eccg.general_helpers.build_finding
 
-import data.cbom.eccg.getter_helpers.get_note
 import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+import data.cbom.eccg.getter_helpers.get_note
 
-import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.helpers.is_agreed_rsa_scheme
+import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.helpers.get_rsa_modulus_bits_or_empty
+import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.helpers.is_rsa_scheme
 import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.helpers.rsa_scheme_metadata
 
 import data.cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.constants.MINIMUM_RSA_MODULUS_LENGTH
 
-RSA_SECTION := "Assymetric-Atomic-Primitives"
+RSA_SECTION := "Asymmetric-Atomic-Primitives"
 RSA_SUBSECTION := "RSA-Integer-Factorization"
 
 #
 # ---------------------------------------------------------
 # ECCG-RSA-001
-# RSA primitive has a non-recommended modulus size.
-#
-# ECCG classification:
-# - R for n >= 3000 and log2(e) > 16
-# - L[2025] for 1900 <= n < 3000 and log2(e) > 16
+# Detect RSA first, then enforce the minimum modulus size from constants.
+# An undersized RSA modulus is critical and non-compliant.
 #
 # Limitation:
 # - CycloneDX data does not reliably expose RSA public exponent e.
@@ -31,22 +27,28 @@ RSA_SUBSECTION := "RSA-Integer-Factorization"
 # ---------------------------------------------------------
 #
 findings contains finding if {
-    some i
-    component := input.components[i]
-    
-    is_public_key_eccg_primitive(component)
-    not is_agreed_rsa_scheme(component)
+	some component in input.components
+	is_rsa_scheme(component)
 
-    note := get_note(RSA_SECTION, RSA_SUBSECTION, "30-LegacyRSA")
+	modulus_bits := get_rsa_modulus_bits_or_empty(component)
+	modulus_bits != ""
+	modulus_bits < MINIMUM_RSA_MODULUS_LENGTH
 
-    finding := build_finding(
-        "ECCG-RSA-001",
-        "critical",
-        sprintf("%s scheme detected. Make sure to use >= %d modulus bitlength.", [get_component_name_or_empty(component), MINIMUM_RSA_MODULUS_LENGTH]),
-        component,
-        object.union(
-            rsa_scheme_metadata(component),
-            note, 
-        )
-    )
+	note := get_note(RSA_SECTION, RSA_SUBSECTION, "30-LegacyRSA")
+
+	finding := build_finding(
+		"ECCG-RSA-001",
+		"critical",
+		sprintf("RSA primitive '%s' uses a %d-bit modulus. The modulus size must be >=%d bits.", [get_component_name_or_empty(component), modulus_bits, MINIMUM_RSA_MODULUS_LENGTH]),
+		component,
+		object.union(
+			rsa_scheme_metadata(component),
+			{
+				"status": "not_agreed",
+				"classification": "non_compliant",
+				"note": note,
+			},
+		),
+	)
 }
+
