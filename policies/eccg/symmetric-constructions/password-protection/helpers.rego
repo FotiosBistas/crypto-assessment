@@ -54,3 +54,9 @@ is_agreed_password_protection_scheme(component) if {
 } else if {
     is_pbkdf2_scheme(component)
 }
+
+
+AGREED_PASSWORD_HASHING_SCHEMES := {
+    PBKDF2_PASSWORD_HASHING_SCHEME_FAMILIES |
+    ARGON2ID_PASSWORD_HASHING_SCHEME_FAMILIES
+}

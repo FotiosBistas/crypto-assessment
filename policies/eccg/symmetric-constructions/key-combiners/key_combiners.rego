@@ -124,7 +124,7 @@ findings contains finding if {
     is_combiner_primitive(component)
 
     finding := build_finding(
-        "ECCG-KC-003",
+        "ECCG-KC-001",
         "warning",
         "Cryptographic combiner detected, but the construction cannot be verified against ECCG Section 3.9.",
         component,

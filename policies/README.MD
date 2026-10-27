@@ -1,265 +1,301 @@
-# ECCG Cryptographic Requirements 
+# ECCG Cryptographic Requirements
 
-Detailed notes on CBOMkit detection limits, separate Semgrep source-code
-signals, and manual-review requirements live in [eccg/README.md](eccg/README.md).
+This catalogue lists the rule IDs, severities, and message variants currently
+defined in the Rego policies under [eccg](eccg). Values in square brackets are
+substituted from the detected component or policy constants. Literal, unformatted
+placeholders in the implementation are identified where applicable.
 
-## Symmetric Atomic Primitives 
+[eccg/main.rego](eccg/main.rego) combines the active policy findings. The general
+key-material rules are implemented separately but are currently excluded from
+that combined output. Classification-based and heuristic findings can require
+manual review; they do not prove that an implementation satisfies the stated
+operational requirements.
 
-### Block Ciphers 
- 
-- ECCG-BLOCK-001: 
+## Symmetric Atomic Primitives
+
+### Block Ciphers
+
+- ECCG-BLOCK-001:
     - Severity: critical
-    - Block cipher [cipher] is not in the agreed block cipher list.
+    - Message: Block cipher '[cipher]' is not in the agreed Block Cipher primitive list. The agreed Block Ciphers primitives are the following: [agreed block cipher names]
 
-- ECCG-BLOCK-002: 
+- ECCG-BLOCK-002:
     - Severity: high
-    - AES uses a non-agreed key size: [x] bits. Allowed sizes are 128, 192, or 256 bits
+    - Message: AES uses a non-agreed key size: [x] bits. The allowed sizes are [128, 192, 256] bits
 
-- ECCG-BLOCK-003: 
-    - Severity: high
-    - 3DES will become legacy-only in 2027 and carries a small-block-size limitation (64-bit block) and a quantum-threat note    
+- ECCG-BLOCK-003:
+    - Severity: critical through evaluation year 2027; error after 2027.
+    - Message while the legacy period is active: 3DES is considered acceptable only as a legacy mechanism L[2027] and should be phased out.
+    - Message after expiry: 3DES was acceptable only as a legacy mechanism L[2027], but that legacy period has expired.
+    - Includes the small-block-size and quantum-threat notes. The evaluation year comes from `input.policyEvaluationDate`, falling back to the current time.
 
 - ECCG-BLOCK-004:
-    - Severity: high
-    - 3DES uses a non-agreed key size: [x] bits. Required size is 168 bits.
+    - Severity: critical through evaluation year 2027; error after 2027.
+    - Message: 3DES uses a non-agreed key size: [x] bits. Required size is 168 bits. [legacy-status message].
+    - The legacy-status message is the corresponding message from ECCG-BLOCK-003.
 
 - ECCG-BLOCK-005:
-    Severity: medium
-    - Cipher [cipher] uses [x]-bit keying, which is below 192 bits and should be avoided where resistance to quantum attacks is required
+    - Severity: medium
+    - Message: Cipher '[cipher]' uses [x]-bit keying, which is below 192 bits and should be avoided where resistance to quantum attacks is required.
 
-### Hashes 
+### Hashes
 
 - ECCG-HASH-001:
-    - Hash function [hash-function] is not in the agreed hash function list.
+    - Severity: critical
+    - Message: Hash function '[hash-function]' is not in the agreed hash function list. The agreed hash functions are the following [agreed hash names].
 
-- ECCG-HASH-002: 
-    - Hash function [hash-function] has output length [x] bits, which is below the recommended 384 bits for quantum-sensitive contexts
+- ECCG-HASH-002:
+    - Severity: medium
+    - Message: Hash function '[hash-function]' has output length [x] bits, which is below the recommended 384 bits for quantum-sensitive contexts
 
 ### XOFs
 
 - ECCG-XOF-001:
-    - XOF function [hash-function] is not in the agreed hash function list.
+    - Severity: critical
+    - Message: XOF function '[xof-function]' is not in the agreed xof function list. The agreed xof functions are the following [agreed XOF names].
 
-- ECCG-XOF -002: 
-    - XOF function [hash-function] has output length [x] bits, which is below the recommended 256 bits for quantum-sensitive contexts
+- ECCG-XOF-002:
+    - Severity: medium
+    - Message: XOF function '[xof-function]' has output length [x] bits, which is below the recommended 256 bits for quantum-sensitive contexts
 
-## Symmetric Constructions 
+## Symmetric Constructions
 
 ### Agreed Symmetric Encryption Schemes
 
-- ECCG-SYM-ENC-001: 
+- ECCG-SYM-ENC-001:
     - Severity: critical
-    - Symmetric encryption scheme [scheme] is not in the agreed scheme list. 
+    - Message: Symmetric encryption scheme '[scheme]' is not in the agreed scheme list [agreed symmetric encryption names].
 
 - ECCG-SYM-ENC-002:
     - Severity: warning
-    - Scheme [scheme] is only conditionally recommended; standalone use is legacy unless additional integrity is provided
+    - Message: Scheme '[scheme]' is only conditionally recommended; standalone use is legacy unless additional integrity is provided. The recommended integrity scheme Encrypt-then-MAC.
 
-- ECCG-SYM-ENC-003: 
+- ECCG-SYM-ENC-003:
     - Severity: warning
-    - Some symmetric encryption modes require a non-predictable IV or a unique IV not necessarily non-predictable.
+    - Message for modes requiring an unpredictable IV: [scheme] requires an unpredictable initialization vector (IV). Predictable IVs, including constant IVs, are not accepted.
+    - Message for modes requiring a unique IV: [scheme] requires a unique IV or nonce for each encryption operation under the same key.
 
-- ECCG-SYM-ENC-004: 
+- ECCG-SYM-ENC-004:
     - Severity: warning
-    - GCM scheme detected. Ensure the agreed upon 128 bits of the IV and the appropriate construction: NIST SP 800-38D, Section 8.2.1.
+    - Message: GCM scheme detected: [scheme]. Ensure the agreed upon 96 bits of the IV and the appropriate construction NIST SP 800-38D, Section 8.2.1..
 
-- ECCG-SYM-ENC-005: 
+- ECCG-SYM-ENC-005:
     - Severity: warning
-    - GCM scheme detected. Ensure the plaintext output is: 2^32 - 2.
+    - Message: GCM scheme detected: [scheme]. Ensure the plaintext output length 2^32 - 2.
+    - The limit described by the rule is a maximum of `2^32 - 2` blocks per encryption invocation, rather than a required exact length.
 
-- ECCG-SYM-ENC-006: 
+- ECCG-SYM-ENC-006:
     - Severity: warning
-    - GCM scheme detected. The output length of the MAC is: 128.
-
+    - Message: GCM scheme detected: [scheme]. The output length of the MAC must be 128.
+    - The length is in bits; the rule requires review of tag generation and verification.
 
 ### Agreed Disk Encryption Schemes
 
 - ECCG-DISK-001:
-    - Severity: warning
-    - Disk encryption scheme [scheme] is not in the accepted disk-encryption list. Note that this might be a false positive.
+    - Severity: low
+    - Message: Disk encryption scheme '[scheme]' is not in the accepted disk-encryption list. Note that this might be a false positive.
 
 - ECCG-DISK-002:
-    - Severity: warning
-    - Scheme is a stream-mode construction and is improper for disk encryption. CBOM-based detection is heuristic and can produce false positives.
+    - Severity: low
+    - Message: Scheme '[scheme]' is a stream-mode construction and is improper for disk encryption. Note that currently it's not possible to detect these schemes accurately through CBOM. There might be some false positives.
 
 - ECCG-DISK-003:
     - Severity: warning
-    - XTS scheme detected. Ensure that every block position across all disks encrypted under the same key has a unique tweak value. If tweaks are derived from storage addresses, verify their uniqueness, particularly when logical rather than physical addresses are used
+    - Message: XTS scheme detected: [scheme]. Ensure that every block position across all disks encrypted under the same key has a unique tweak value. If tweaks are derived from storage addresses, verify their uniqueness, particularly when logical rather than physical addresses are used.
 
 - ECCG-DISK-004:
     - Severity: warning
-    - CBC-ESSIV scheme detected. Ensure that every disk sector has a unique sector number across all disks encrypted under the same key, particularly when sector numbers are derived from logical storage addresses. CBC-ESSIV does not provide integrity protection and is vulnerable to ciphertext manipulation, potentially allowing attackers to produce meaningful changes after decryption. If such attacks are a concern, stronger disk encryption mechanisms should be adopted.
+    - Message: CBC-ESSIV scheme detected: [scheme]. Ensure that every disk sector has a unique sector number across all disks encrypted under the same key, particularly when sector numbers are derived from logical storage addresses. CBC-ESSIV does not provide integrity protection and is vulnerable to ciphertext manipulation, potentially allowing attackers to produce meaningful changes after decryption. If such attacks are a concern, stronger disk encryption mechanisms should be adopted.
 
-### Message Authentication Codes 
+### Message Authentication Codes
 
 - ECCG-MAC-001:
     - Severity: critical
-    - MAC scheme [scheme] is not listed in the ECCG agreed or legacy MAC tables. The recommended MAC schemes are: [``recommended_mac_schemes``].
+    - Message: MAC scheme '[scheme]' is not listed in the ECCG agreed or legacy MAC tables. The recommended mac schemes are [agreed MAC names].
+    - Severity: warning for the encryption/MAC composition heuristic.
+    - Message: Encryption primitive '[encryption]' and MAC primitive '[mac]' occur in close source-code proximity. Verify that the implementation uses an ECCG-agreed composition, meaning Encrypt-then-MAC.
+    - Both findings use ECCG-MAC-001. Source proximity does not establish the order of encryption and authentication.
 
 - ECCG-MAC-002:
     - Severity: warning
-    - The output of a MAC must not be truncated less than x bits.
+    - Message: The output [agreed MAC names] must not be truncated to less than 96 bits.
+    - GMAC is handled separately by ECCG-GMAC-003.
 
 - ECCG-HMAC-001:
     - Severity: medium
-    - HMAC is safe for quantum sensitive contexts, when output size is at least %d bits.
+    - Message: [scheme] is safe for quantum sensitive contexts, when output size is at least 192 bits.
+    - Applies to HMAC and KMAC; this is an advisory finding and does not verify actual key or output lengths.
 
 - ECCG-CBC-MAC-001:
-    - Severity: warning 
-    - CBC MAC scheme detected. Ensure the outputs follow a fixed input length.
+    - Severity: warning
+    - Message: CBC MAC scheme detected: [scheme]. Ensure the outputs follow a fixed input length.
 
 - ECCG-GMAC-001:
     - Severity: warning
-    - GMAC scheme detected. Ensure the security of the IV.
+    - Message: GMAC scheme detected: [scheme]. Ensure the security of the IV.
 
 - ECCG-GMAC-002:
     - Severity: warning
-    - GMAC scheme detected. Ensure the agreed upon 96 bits of the IV and the appropriate construction NIST SP 800-38D, Section 8.2.1.
+    - Message: GMAC scheme detected: [scheme]. Ensure the agreed upon 96 bits of the IV and the appropriate construction NIST SP 800-38D, Section 8.2.1..
 
 - ECCG-GMAC-003:
     - Severity: warning
-    - GMAC scheme detected. Do not truncate the output tag of GMAC.
+    - Message: GMAC scheme detected: [scheme]. Do not truncate the output tag of GMAC.
 
 ### Agreed Symmetric Authenticated Encryption Schemes
 
-- ECCG-AE-001:
+- ECCG-SEAS-001:
     - Severity: critical
-    - Detected scheme is not an agreed authenticated-encryption scheme.
+    - Message: `%s is not an agreed Authenticated Encryption scheme.`
 
-- ECCG-AE-002:
+- ECCG-SEAS-002:
     - Severity: warning
-    - When using Authenticated Encryption schemes ensure the challenged are not reused and the challenge bits are 125.
+    - Message: `%s detected. When using Authenticated Encryption schemes ensure that the challenges are not reused and the challenge bits are %d.`
 
+The SEAS rules currently pass these message strings directly to `build_finding`,
+so `%s` and `%d` remain literal placeholders. The intended values are the detected
+scheme name and a challenge size of 125 bits.
 
 ### Agreed Key Protection Schemes
 
-
 - ECCG-KP-001:
-    - Severity: info
-    - AES Key Wrap, including AES-KW and AES-KWP, is an agreed key-protection scheme.
-
-- ECCG-KP-002:
-    - Severity: info
-    - SIV, RFC5297, is an agreed key-protection scheme.
+    - Severity: medium
+    - Message: Key protection scheme '[scheme]' is not in the agreed key-protection list. Agreed schemes are AES Key Wrap, AES Key Wrap with Padding, and SIV. This might be a false positive since there is no way to distinguish key protection schemes from the CBOM.
 
 ### Agreed Key Derivation Functions
 
-
 - ECCG-KDF-001:
-    - Severity: info
-    - NIST SP800-56 ABC is an agreed key derivation function.
+    - Severity: critical
+    - Message: [scheme] KDF scheme detected. HKDF, PBKDF2, ANSI-X9.63-KDF, and derivation methods defined in NIST SP800-56A/B/C are the only recommended symmetric key derivation mechanisms.
 
 - ECCG-KDF-002:
-    - Severity: info
-    - ANSI-X9.63-KDF is an agreed key derivation function.
-
-- ECCG-KDF-003:
-    - Severity: info
-    - PBKDF2 is an agreed key derivation function. The detected PRF basis is [pseudo-random-function].
-
-- ECCG-KDF-004:
-    - Severity: info
-    - HKDF is an agreed key derivation function.
-
-- ECCG-KDF-006:
-    - Severity: info
-    - An agreed key derivation function [scheme] was detected.
-
-- ECCG-KDF-006:
-    - Severity: critical
-    - A key derivation function component was detected but is not currently classified as an agreed ECCG KDF by this policy. This does not mean that your code is unsafe, but it should be flagged as non-compliant.
+    - Severity: warning
+    - Message: PBKDF2 scheme detected: [scheme]. Ensure that the underlying pseudo-random function (PRF) is an agreed cryptographic mechanism. If HMAC is used, verify that the HMAC key length does not exceed the underlying hash function's message block length without considering the security implications. Longer keys are pre-hashed, which may reduce the effective entropy of the key derived using PBKDF2. Note that this might overlap with password-hashing, since they mostly use the same underlying primitives.
 
 ### Agreed Password Hashing Mechanisms
 
-
 - ECCG-PWH-001:
-    - Severity: info
-    - Password hashing mechanism [scheme] is based on PBKDF2, which is the agreed password hashing mechanism.
+    - Severity: critical
+    - Message: Password hashing mechanism '[scheme]' is not based on the agreed schemes. Note that there is no way to differentiate, whether this is a KDF or a password hash from the CBOM alone. The agreed schemes are: [agreed password hashing schemes]
+
 - ECCG-PWH-002:
-    - Severity: high
-    - PBKDF2 is the agreed password hashing scheme, but PBKDF2-SHA1 relies on legacy SHA-1 and should not be used.
-- ECCG-PWH-003
-    - Not implemented
-    - Non-agreed password hashing schemes should be flagged. CBOMkit currently represents password hashing mechanisms only as generic key-derivation components. The CBOM does not reliably expose whether a KDF is being used specifically for password hashing, password verification, or general-purpose key derivation.
+    - Severity: warning
+    - Message: PBKDF2 password hashing scheme detected: [scheme]. Ensure that the iteration count is set as high as practically possible without impeding legitimate use, to increase resistance against brute-force attacks. Additionally, a cryptographically random salt of at least 128 bits must be generated when the password is registered and stored alongside the password verification value to prevent precomputation attacks.
+
+- ECCG-PWH-003:
+    - Severity: warning
+    - Message: Argon2id password hashing scheme detected: [scheme]. Ensure that the agreed ECCG parameters are used: 1 iteration, 4 parallel lanes, 2097152 KiB (2 GiB) of memory, a 128-bit salt, and a 256-bit authentication tag.
+    - The PBKDF2 and Argon2id parameter findings require manual verification.
 
 ### Agreed Key Combiners
 
-### Key Combiners
-
 - ECCG-KC-001:
-    - Severity: info
-    - CatKDF / Concatenate-then-KDF is an agreed key combiner mechanism. Detection may be based on ConcatKDFHash or ConcatKDFHMAC because CBOMkit may not model CatKDF as a first-class combiner.
-
-- ECCG-KC-002:
-    - Severity: info
-    - CasKDF / Cascade-KDF is an agreed key combiner mechanism. Direct detection is unlikely unless the CBOM explicitly names the construction.
-
-- ECCG-KC-003:
-    - Severity: info
-    - Multiple KDF components were detected in a shared source context. This may correspond to a CasKDF / Cascade-KDF key combiner, but CBOM does not expose ordering or data-flow semantics. Manual review is required.
-
-- ECCG-KC-004:
-    - Severity: critical
-    - Key combiner scheme [scheme] is not listed in the ECCG agreed key combiner table. This does not mean that your code is unsafe, but it should probably be flagged as non-compliant.
-
-## Asymmetric Constructions
-
-### Agreed Asymmetric Encryption Schemes
-
-- ECCG-AS-ENC-001:
-    - Severity: info/warning/critical
-    - Classifies asymmetric encryption schemes according to the ECCG table: RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) is recommended, RSAES-PKCS1-v1_5 is legacy, and other identifiable asymmetric encryption schemes are rejected as not agreed.
-
-### Agreed Key Establishment and Key Encapsulation Schemes
-
-- ECCG-KEE-001:
-    - Severity: critical
-    - Key establishment or key encapsulation scheme [scheme] is not one of the recommended schemes. DH, DLIES-KEM, EC-DH, and ECIES-KEM are the only recommended key establishment and key encapsulation schemes.
-
-- ECCG-KEE-002:
     - Severity: warning
-    - The parties that participate in a key establishment scheme must be authenticated. CBOM data may not be enough to prove this obligation.
+    - Message for dependency-based detection: Potential hybrid key combiner detected through dependencies. Verify compliance with ECCG Section 3.9.
+    - Message for occurrence-based detection: Potential hybrid key combiner detected through source-code occurrences. Verify compliance with ECCG Section 3.9.
+    - Message for a declared combiner primitive: Cryptographic combiner detected, but the construction cannot be verified against ECCG Section 3.9.
+    - These heuristics detect multiple key-establishment assets with a combining-related asset. They do not identify the specific combiner construction.
+    - All three detection methods use ECCG-KC-001.
 
-### Agreed Digital Signature Schemes
-
-- ECCG-DG-001:
-    - Severity: critical
-    - Digital signature scheme [scheme] is not listed as an ECCG recommended digital signature scheme. Recommended schemes are RSASSA-PSS, KCDSA, Schnorr, DSA, EC-KCDSA, ECDSA / EC-DSA, EC-GDSA, EC-Schnorr, ML-DSA, XMSS, LMS, and SLH-DSA.
-    - Severity: warning
-    - RSASSA-PKCS1-v1_5 is legacy in the ECCG digital signature table and should be reviewed or phased out in favor of a recommended scheme.
-
-## Asymmetric Atomic Primitives 
+## Asymmetric Atomic Primitives
 
 ### RSA Integer Factorization
 
 - ECCG-RSA-001:
-    - Severity: warning/error/critical
-    - RSA modulus size must be at least 3000 bits and must satisfy log2(e) > 16. RSA sizes 1900 <= n < 3000 are legacy-only L[2025], and missing modulus data is reported as inconclusive because the CBOM cannot verify the RSA size or exponent requirements.
+    - Severity: critical
+    - Message: RSA primitive '[scheme]' uses a [x]-bit modulus. The modulus size must be >=3000 bits.
+    - Applies when a detected modulus is below 3000 bits. Missing modulus data produces no finding from this rule, and the public-exponent requirement `log2(e) > 16` is not verified by the implementation.
 
 ### Agreed FF-DLOG Parameters
 
 - ECCG-FFDLOG-001:
     - Severity: critical
-    - FF-DLOG primitive [scheme] is not identifiable as an agreed MODP (RFC3526) or FFDHE (RFC7919) group.
+    - Message: FF-DLOG primitive '[scheme]' is not identifiable as an agreed group. Accepted parameter families: [accepted FF-DLOG families].
+    - Accepted families are MODP (RFC3526) and FFDHE (RFC7919).
 
 - ECCG-FFDLOG-002:
-    - Severity: warning/error/critical
-    - MODP and FFDHE group size must be at least 3072 bits. 2048-bit MODP/FFDHE groups are legacy-only L[2025], and missing group-size data is reported as inconclusive.
+    - Severity: critical for an undersized MODP/FFDHE group.
+    - Message: Group size for [accepted FF-DLOG families] must be >=3072 bits. Detected p=[x] bits.
+    - Severity: warning when the group size cannot be determined.
+    - Message: Group size for [accepted FF-DLOG families] must be >=3072 bits, but parameterSetIdentifier is missing or does not identify a valid group size.
+    - Known groups below 3072 bits are non-compliant regardless of the evaluation date; missing group-size data is inconclusive.
 
 ### Agreed Elliptic Curve Parameters
 
 - ECCG-ECDLOG-001:
-    - Severity: info
-    - EC-DLOG primitive was detected with agreed elliptic curve [curve] and is classified as recommended.
+    - Severity: critical for a curve outside the allowlist.
+    - Message: EC-DLOG primitive detected with elliptic curve [curve], which is not allowed by ECCG-ECDLOG-001. Recommended curves: [recommended curves].
+    - Severity: warning when the curve cannot be determined.
+    - Message: `EC-DLOG primitive %d detected, but its elliptic curve could not be determined. Supply algorithmProperties.ellipticCurve to verify ECCG-ECDLOG-001.`
+    - The missing-curve message currently contains a literal `%d`; it is not formatted by the implementation.
+    - Recommended curves: BrainpoolP256r1, BrainpoolP384r1, BrainpoolP512r1, NIST P-256, NIST P-384, NIST P-521, FRP256v1, Curve25519, and Curve448.
 
 - ECCG-ECDLOG-002:
-    - Severity: info
-    - EC-DLOG primitive was detected with agreed NIST elliptic curve [curve] and is classified as recommended. ECCG note 39-SpecialP applies.
-
-- ECCG-ECDLOG-003:
-    - Severity: critical
-    - EC-DLOG primitive was detected with elliptic curve [curve], which is not listed as an agreed ECCG curve. This curve is rejected for ECCG EC-DLOG compliance.
-
-- ECCG-ECDLOG-004:
     - Severity: warning
-    - EC-DLOG primitive was detected, but the elliptic curve could not be determined from the CBOM. ECCG curve compliance could not be verified.
+    - Message: EC-DLOG primitive detected with agreed NIST elliptic curve [curve]. Classified as recommended; ECCG note 39-SpecialP applies.
+    - Applies to NIST P-256, P-384, and P-521. Other agreed curves do not produce an informational finding.
+
+## Asymmetric Constructions
+
+### Agreed Asymmetric Encryption Schemes
+
+Implemented in [asymmetric-encryption-schemes](eccg/asymmetric-constructions/asymmetric-encryption-schemes).
+Classification uses the first recognized scheme in OID → algorithm family →
+component name order. Generic `RSA` family metadata can be refined by a specific
+scheme name. Findings include `classificationMethod` and `matchedIdentifier`.
+
+For encryption algorithms, OID `1.2.840.113549.1.1.7` identifies RSAES-OAEP and
+`1.2.840.113549.1.1.1` identifies RSAES-PKCS1-v1_5. Signatures, KEMs, and key
+material are excluded. A generic RSA identifier without padding information is
+inconclusive; identifying an RSA key alone does not establish encryption use.
+
+- ECCG-AS-ENC-001:
+    - Severity: info for RSAES-OAEP.
+    - Message: RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) detected. Classified as the recommended asymmetric encryption scheme.
+    - Severity: warning for RSAES-PKCS1-v1_5.
+    - Message: RSAES-PKCS1-v1_5 (PKCS #1 v1.5 / RFC 8017) detected. This asymmetric encryption scheme is admissible but not recommended; RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) is the only recommended asymmetric encryption scheme.
+    - Severity: critical for a non-agreed scheme.
+    - Message: Asymmetric encryption scheme '[scheme]' is not listed in the ECCG agreed asymmetric encryption scheme table. RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) is the only recommended asymmetric encryption scheme.
+    - Severity: warning when RSA encryption padding cannot be determined.
+    - Message: RSA asymmetric encryption was detected, but the padding/scheme could not be determined from the CBOM. RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) is the only recommended asymmetric encryption scheme.
+    - Severity: warning when a public-key encryption component has no identifiable scheme.
+    - Message: Asymmetric encryption was detected, but the scheme could not be determined from the CBOM. RSAES-OAEP (PKCS #1 v2.2 / RFC 8017) is the only recommended asymmetric encryption scheme.
+    - OAEP is classified as recommended (`R`); PKCS#1 v1.5 is admissible (`A`). Notes 43-RandomPadding, 44-PaddingAttack, 45-OAEP-PaddingAttack, and 46-QuantumThreat accompany the applicable scheme. Padding generation and decoding require implementation review.
+
+### Agreed Key Establishment and Key Encapsulation Schemes
+
+- ECCG-KEE-001:
+    - Severity: critical
+    - Message: Key establishment or key encapsulation scheme '[scheme]' is not one of the ECCG recommended schemes. The recommended schemes are DH, DLIES-KEM, EC-DH, ECIES-KEM.
+
+- ECCG-KEE-002:
+    - Severity: warning
+    - Message: [scheme] is a recommended key establishment or key encapsulation scheme, but participating parties and exchanged key-establishment data must be authenticated.
+    - The CBOM identifies the scheme but does not prove that authentication is implemented.
+
+### Agreed Digital Signature Schemes
+
+- ECCG-DG-001:
+    - Severity: critical
+    - Message: Digital signature scheme '[scheme]' is not listed as an ECCG recommended digital signature scheme. The recommended digital signature schemes are [recommended signature schemes].
+    - Severity: warning for a legacy signature scheme.
+    - Message: Digital signature scheme '[scheme]' is legacy in the ECCG digital signature table and is not one of the recommended schemes. The recommended digital signature schemes are [recommended signature schemes].
+    - Recommended schemes: RSASSA-PSS, KCDSA, Schnorr, DSA, EC-KCDSA, ECDSA / EC-DSA, EC-GDSA, EC-Schnorr, ML-DSA, XMSS, LMS, and SLH-DSA. The legacy scheme is RSASSA-PKCS1-v1_5.
+
+
+## General
+
+### Key Material
+
+These rules are defined in [eccg/general/key_detection.rego](eccg/general/key_detection.rego).
+Their source entry is commented out in `eccg/main.rego`, so they are not included
+in `data.cbom.eccg.findings`. They can be queried separately through
+`data.cbom.eccg.general.key_detection.findings`.
+
+- ECCG-RSA-KEY-001:
+    - Severity: high
+    - Message: Private key material '[component]' was detected in the CBOM. Review whether this key is generated, embedded, stored, or otherwise exposed in the source context.
+
+- ECCG-RSA-KEY-002:
+    - Severity: info
+    - Message: Public key material '[component]' was detected in the CBOM. Public keys are not confidential, but should still be reviewed for lifecycle, trust, and algorithm-size policy.

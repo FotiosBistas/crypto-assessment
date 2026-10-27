@@ -10,6 +10,7 @@ import data.cbom.eccg.classifying_helpers.is_password_hashing_primitive
 import data.cbom.eccg.symmetric_constructions.password_protection.helpers.is_agreed_password_protection_scheme
 import data.cbom.eccg.symmetric_constructions.password_protection.helpers.is_pbkdf2_scheme
 import data.cbom.eccg.symmetric_constructions.password_protection.helpers.is_argon2id_scheme
+import data.cbom.eccg.symmetric_constructions.password_protection.helpers.AGREED_PASSWORD_HASHING_SCHEMES
 import data.cbom.eccg.symmetric_constructions.password_protection.helpers.password_protection_scheme_metadata
 import data.cbom.eccg.symmetric_constructions.password_protection.constants.ARGON2ID_ITERATIONS_REQUIRED
 import data.cbom.eccg.symmetric_constructions.password_protection.constants.ARGON2ID_PARALLELISM_REQUIRED
@@ -40,8 +41,8 @@ findings contains finding if {
         "ECCG-PWH-001",
         "critical",
         sprintf(
-            "Password hashing mechanism '%s' is based on PBKDF2, which is the agreed password hashing mechanism. Note that there is no way to differentiate, whether this is a KDF or a password hash from the CBOM alone.",
-            [get_component_name_or_empty(component)]
+            "Password hashing mechanism '%s' is not based on the agreed schemes. Note that there is no way to differentiate, whether this is a KDF or a password hash from the CBOM alone. The agreed schemes are: %s",
+            [get_component_name_or_empty(component), AGREED_PASSWORD_HASHING_SCHEMES]
         ),
         component,
         password_protection_scheme_metadata(component),
@@ -49,7 +50,7 @@ findings contains finding if {
 }
 
 # ============================================================
-# Rule ECCG-PH-002
+# Rule ECCG-PWH-002
 # PBKDF2 iteration count and salt requirements.
 #
 # ECCG classification: Warning
@@ -109,7 +110,7 @@ findings contains finding if {
 
 
 # ============================================================
-# Rule ECCG-PH-003
+# Rule ECCG-PWH-003
 # Argon2id password hashing parameter requirements.
 #
 # ECCG classification: Warning
@@ -140,7 +141,7 @@ findings contains finding if {
     note := get_note(SECTION, SUBSECTION, "27-Argon Parameters")
 
     finding := build_finding(
-        "ECCG-PH-003",
+        "ECCG-PWH-003",
         "warning",
         sprintf(
             "Argon2id password hashing scheme detected: %s. Ensure that the agreed ECCG parameters are used: %d iteration, %d parallel lanes, %d KiB (2 GiB) of memory, a %d-bit salt, and a %d-bit authentication tag.",
