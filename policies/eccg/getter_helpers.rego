@@ -639,7 +639,7 @@ get_related_crypto_material_finding_details(component) := details if {
 
 #
 # ---------------------------------------------------------
-# Helper: get_ec_curve_or_unknown
+# Helper: get_ec_curve_or_empty
 #
 # Purpose:
 # Extract the elliptic curve identifier from a CBOM component.
@@ -656,13 +656,20 @@ get_related_crypto_material_finding_details(component) := details if {
 #
 # The component-name fallback intentionally extracts only known curve
 # identifiers. A bare algorithm name such as "ECDH" is not a curve and should
-# produce "unknown" so the EC-DLOG policy can report an inconclusive finding.
+# produce "" so the EC-DLOG policy can report an inconclusive finding.
+# A parameter set naming multiple curves is inconclusive and must not be
+# hidden by the component-name fallback. Non-curve parameters (e.g. "256")
+# can still fall back to the name.
 # ---------------------------------------------------------
 #
 get_ec_curve_or_empty(component) := curve if {
     curve := get_component_elliptic_curve_or_empty(component)
     curve != ""
-}  else := curve if {
+} else := curve if {
+    parameter := get_component_parameter_set_identifier_or_empty(component)
+    count(get_ec_curve_matches(parameter)) > 0
+    curve := get_ec_curve_from_text_or_empty(parameter)
+} else := curve if {
     name := get_component_name_or_empty(component)
     name != ""
     curve := get_ec_curve_from_text_or_empty(name)
@@ -670,75 +677,47 @@ get_ec_curve_or_empty(component) := curve if {
 } else := ""
 
 #
-# Extract a known EC curve identifier from loosely formatted text.
-#
-# This covers the ECCG-agreed EC-DLOG curves plus common non-agreed EC curves
-# that should still be reported as curve-specific compliance findings.
-#
-get_ec_curve_from_text_or_empty(text) := "BrainpoolP256r1" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "brainpoolp256r1")
-} else := "BrainpoolP384r1" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "brainpoolp384r1")
-} else := "BrainpoolP512r1" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "brainpoolp512r1")
-} else := "FRP256v1" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "frp256v1")
-} else := "NIST P-256" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "nistp256")
-} else := "NIST P-256" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "secp256r1")
-} else := "NIST P-256" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "prime256v1")
-} else := "NIST P-256" if {
-    normalized := normalize_crypto_identifier(text)
-    normalized == "p256"
-} else := "NIST P-384" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "nistp384")
-} else := "NIST P-384" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "secp384r1")
-} else := "NIST P-384" if {
-    normalized := normalize_crypto_identifier(text)
-    normalized == "p384"
-} else := "NIST P-521" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "nistp521")
-} else := "NIST P-521" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "secp521r1")
-} else := "NIST P-521" if {
-    normalized := normalize_crypto_identifier(text)
-    normalized == "p521"
-} else := "secp256k1" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "secp256k1")
-} else := "X25519" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "x25519")
-} else := "X448" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "x448")
-} else := "Ed25519" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "ed25519")
-} else := "Ed448" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "ed448")
-} else := "Curve25519" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "curve25519")
-} else := "Curve448" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "curve448")
-} else := "SM2" if {
-    normalized := normalize_crypto_identifier(text)
-    contains(normalized, "sm2")
+# Extract one distinct known curve from text. Multiple aliases for the same
+# curve are deduplicated; different curves, malformed input, and no match
+# return an empty string. Recognition is independent of ECCG approval.
+get_ec_curve_from_text_or_empty(text) := curve if {
+    matches := get_ec_curve_matches(text)
+    count(matches) == 1
+    some curve in matches
 } else := ""
+
+# Preserve separators until after matching so identifiers such as secp256r10
+# cannot match secp256r1. Each pattern is checked independently, including
+# adjacent curve tokens that share a separator.
+get_ec_curve_matches(text) := {curve |
+    is_string(text)
+    some curve, pattern in EC_CURVE_TEXT_PATTERNS
+    bounded := sprintf("(?i)(^|[^[:alnum:]])(%s)($|[^[:alnum:]])", [pattern])
+    regex.match(bounded, text)
+}
+
+# Text extraction patterns identify curves without assigning policy status.
+# The getter adds token boundaries and rejects matches to multiple curves.
+EC_CURVE_TEXT_PATTERNS := {
+	"BrainpoolP256r1": "brainpool[[:space:]_./-]*p256r1",
+	"BrainpoolP384r1": "brainpool[[:space:]_./-]*p384r1",
+	"BrainpoolP512r1": "brainpool[[:space:]_./-]*p512r1",
+	"FRP256v1": "frp256v1",
+	"NIST P-256": "((nist[[:space:]_./-]*)?p[[:space:]_./-]*256|secp256r1|prime256v1)",
+	"NIST P-384": "((nist[[:space:]_./-]*)?p[[:space:]_./-]*384|secp384r1)",
+	"NIST P-521": "((nist[[:space:]_./-]*)?p[[:space:]_./-]*521|secp521r1)",
+	"X25519": "x25519",
+	"X448": "x448",
+	"Ed25519": "(ed|edwards)25519",
+	"Ed448": "(ed|edwards)448",
+	"Curve25519": "curve25519",
+	"Curve448": "curve448",
+	"secp256k1": "secp256k1",
+	"secp192r1": "((nist[[:space:]_./-]*)?p[[:space:]_./-]*192|secp192r1|prime192v1)",
+	"secp224r1": "((nist[[:space:]_./-]*)?p[[:space:]_./-]*224|secp224r1)",
+	"BrainpoolP160r1": "brainpool[[:space:]_./-]*p160r1",
+	"BrainpoolP256t1": "brainpool[[:space:]_./-]*p256t1",
+	"NIST B-283": "(nist[[:space:]_./-]*)?b[[:space:]_./-]*283",
+	"NIST K-283": "(nist[[:space:]_./-]*)?k[[:space:]_./-]*283",
+	"SM2": "sm2",
+}
