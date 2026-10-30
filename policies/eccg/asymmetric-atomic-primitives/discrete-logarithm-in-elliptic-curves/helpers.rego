@@ -133,16 +133,16 @@ is_ecdlog_primitive(component) if {
     is_ecdlog_name(name)
 }
 
+# name comes from get_component_name_or_empty: already trimmed and lowercase.
 # Match whole identifiers or an algorithm prefix followed by a separator.
 # Avoid classifying arbitrary text that merely contains an EC algorithm name.
 is_ecdlog_name(name) if {
     normalize_crypto_identifier(name) in ecdlog_names
 } else if {
-    text := lower(trim_space(name))
     some candidate in EC_DLOG_PRIMITIVE_NAMES
     prefix := lower(candidate)
     some separator in {"-", "_", "/", " "}
-    startswith(text, concat(separator, [prefix, ""]))
+    startswith(name, concat(separator, [prefix, ""]))
 }
 
 # Preserve explicit curve metadata and recognized parameter sets, including

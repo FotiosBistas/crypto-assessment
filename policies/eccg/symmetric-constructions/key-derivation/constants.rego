@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_constructions.key_derivation.constants
 
+import data.cbom.eccg.oid_constants.NO_OID
+
 #
 # Sources:
 # - https://doi.org/10.6028/NIST.SP.800-56Ar3
@@ -56,34 +58,34 @@ NIST_SP800_56_KDF_FAMILIES := {
 # No standalone general-purpose KDF OIDs verified
 NIST_SP800_56_KDF_OIDS := {
     # SP 800-56A
-    "SP800-56A": null,
-    "SP800-56A-KDF": null,
-    "NIST-SP800-56A": null,
+    "SP800-56A": NO_OID,
+    "SP800-56A-KDF": NO_OID,
+    "NIST-SP800-56A": NO_OID,
 
     # SP 800-56B
-    "SP800-56B": null,
-    "SP800-56B-KDF": null,
-    "NIST-SP800-56B": null,
+    "SP800-56B": NO_OID,
+    "SP800-56B-KDF": NO_OID,
+    "NIST-SP800-56B": NO_OID,
 
     # SP 800-56C
-    "SP800-56C": null,
-    "SP800-56C-KDF": null,
-    "NIST-SP800-56C": null,
-    "NIST-SP800-56-KDF": null,
+    "SP800-56C": NO_OID,
+    "SP800-56C-KDF": NO_OID,
+    "NIST-SP800-56C": NO_OID,
+    "NIST-SP800-56-KDF": NO_OID,
 
     # One-step KDF
-    "SP800_56C_OneStep": null,
-    "SP800-56C-OneStep": null,
-    "SP800-56C-OneStep-KDF": null,
+    "SP800_56C_OneStep": NO_OID,
+    "SP800-56C-OneStep": NO_OID,
+    "SP800-56C-OneStep-KDF": NO_OID,
 
     # Two-step KDF
-    "SP800_56C_TwoStep_CounterKDF": null,
-    "SP800_56C_TwoStep_FeedbackKDF": null,
-    "SP800_56C_TwoStep_DoublePipelineKDF": null,
+    "SP800_56C_TwoStep_CounterKDF": NO_OID,
+    "SP800_56C_TwoStep_FeedbackKDF": NO_OID,
+    "SP800_56C_TwoStep_DoublePipelineKDF": NO_OID,
 
     # Common descriptive names
-    "SP800-56C-TwoStep": null,
-    "SP800-56C-Extraction-Expansion": null,
+    "SP800-56C-TwoStep": NO_OID,
+    "SP800-56C-Extraction-Expansion": NO_OID,
 }
 
 NIST_SP800_56_KDF_OID_VALUES := {
@@ -130,26 +132,26 @@ ANSI_X963_KDF_FAMILIES := {
 
 # No standalone ANSI X9.63 KDF OID verified.
 ANSI_X963_KDF_OIDS := {
-    "ANSI-KDF-X9.63": null,
-    "ANSI-X9.63-KDF": null,
-    "ANSI-X9.63": null,
-    "X9.63-KDF": null,
-    "X963-KDF": null,
-    "X963KDF": null,
-    "X9.63KDF": null,
-    "ANSI-X963-KDF": null,
+    "ANSI-KDF-X9.63": NO_OID,
+    "ANSI-X9.63-KDF": NO_OID,
+    "ANSI-X9.63": NO_OID,
+    "X9.63-KDF": NO_OID,
+    "X963-KDF": NO_OID,
+    "X963KDF": NO_OID,
+    "X9.63KDF": NO_OID,
+    "ANSI-X963-KDF": NO_OID,
 
     # Hash variants
-    "ANSI-KDF-X9.63-SHA-1": null,
-    "ANSI-KDF-X9.63-SHA-224": null,
-    "ANSI-KDF-X9.63-SHA-256": null,
-    "ANSI-KDF-X9.63-SHA-384": null,
-    "ANSI-KDF-X9.63-SHA-512": null,
+    "ANSI-KDF-X9.63-SHA-1": NO_OID,
+    "ANSI-KDF-X9.63-SHA-224": NO_OID,
+    "ANSI-KDF-X9.63-SHA-256": NO_OID,
+    "ANSI-KDF-X9.63-SHA-384": NO_OID,
+    "ANSI-KDF-X9.63-SHA-512": NO_OID,
 
     # Common implementation aliases
-    "X963KDF-SHA256": null,
-    "X963KDF-SHA384": null,
-    "X963KDF-SHA512": null,
+    "X963KDF-SHA256": NO_OID,
+    "X963KDF-SHA384": NO_OID,
+    "X963KDF-SHA512": NO_OID,
 
 }
 

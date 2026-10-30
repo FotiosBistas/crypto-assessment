@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_atomic_primitives.hashes.helpers
 
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+
 import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_negative_one
 import data.cbom.eccg.getter_helpers.get_component_oid_or_empty
 
@@ -27,7 +29,7 @@ is_sha256(component) if {
     oid == SHA2_HASH_ALGORITHM_OIDS["SHA-256"]
 } else if {
     is_hash_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "sha256")
 }
 
@@ -38,7 +40,7 @@ is_sha384(component) if {
     oid == SHA2_HASH_ALGORITHM_OIDS["SHA-384"]
 } else if {
     is_hash_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "sha384")
 }
 
@@ -48,7 +50,7 @@ is_sha512(component) if {
     oid == SHA2_HASH_ALGORITHM_OIDS["SHA-512"]
 } else if {
     is_hash_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "sha512")
 }
 
@@ -58,7 +60,7 @@ is_sha512_256(component) if {
     oid == SHA2_HASH_ALGORITHM_OIDS["SHA-512/256"]
 } else if {
     is_hash_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "sha512/256")
 }
 
@@ -68,7 +70,7 @@ is_sha3_256(component) if {
     oid == SHA3_HASH_ALGORITHM_OIDS["SHA3-256"]
 } else if {
     is_hash_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "sha3256")
 }
 
@@ -78,7 +80,7 @@ is_sha3_384(component) if {
     oid == SHA3_HASH_ALGORITHM_OIDS["SHA3-384"]
 } else if {
     is_hash_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "sha3384")
 }
 
@@ -88,7 +90,7 @@ is_sha3_512(component) if {
     oid == SHA3_HASH_ALGORITHM_OIDS["SHA3-512"]
 } else if {
     is_hash_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "sha3512")
 }
 

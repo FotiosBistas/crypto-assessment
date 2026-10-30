@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_atomic_primitives.block_ciphers.helpers
 
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+
 import data.cbom.eccg.general_helpers.normalize_crypto_identifier
 
 import data.cbom.eccg.classifying_helpers.is_block_cipher_primitive
@@ -37,10 +39,11 @@ is_aes_component(component) if {
 } else if {
     is_block_cipher_or_ae_primitive(component)
     algorithm_family := get_component_algorithm_family_or_empty(component) 
-    algorithm_family in AES_ALGORITHM_FAMILIES
+    some known_family in AES_ALGORITHM_FAMILIES
+    algorithm_family == lower(known_family)
 } else if {
     is_block_cipher_or_ae_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "aes")
 }
 
@@ -54,14 +57,15 @@ is_3des_component(component) if {
 } else if {
     is_block_cipher_primitive(component)
     algorithm_family := get_component_algorithm_family_or_empty(component) 
-    algorithm_family in TRIPLE_DES_ALGORITHM_FAMILIES
+    some known_family in TRIPLE_DES_ALGORITHM_FAMILIES
+    algorithm_family == lower(known_family)
 } else if {
     is_block_cipher_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "3des")
 } else if {
     is_block_cipher_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "tripledes")
 }
 

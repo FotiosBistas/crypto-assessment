@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_constructions.symmetric_authenticated_disk_encryption.constants
 
+import data.cbom.eccg.oid_constants.NO_OID
+
 SEAS_CHALLENGE_SIZE_REQUIRED_BITS := 125
 GCM_INITIALIZATION_VECTOR_REQUIRED_BITS := 96
 GCM_MAC_LENGTH_REQUIRED_BITS := 128
@@ -71,10 +73,10 @@ CTR_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES := {
 }
 
 CTR_SYMMETRIC_ENCRYPTION_SCHEME_OIDS := {
-    "CTR": null,
-    "AES-128-CTR": null,
-    "AES-192-CTR": null,
-    "AES-256-CTR": null,
+    "CTR": NO_OID,
+    "AES-128-CTR": NO_OID,
+    "AES-192-CTR": NO_OID,
+    "AES-256-CTR": NO_OID,
 }
 
 CTR_SYMMETRIC_ENCRYPTION_SCHEME_OID_VALUES := {
@@ -175,13 +177,13 @@ CBC_CS_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES := {
 }
 
 CBC_CS_SYMMETRIC_ENCRYPTION_SCHEME_OIDS := {
-    "CBC-CS": null,
-    "CBC-CS1": null,
-    "CBC-CS2": null,
-    "CBC-CS3": null,
-    "AES-128-CTS": null,
-    "AES-192-CTS": null,
-    "AES-256-CTS": null,
+    "CBC-CS": NO_OID,
+    "CBC-CS1": NO_OID,
+    "CBC-CS2": NO_OID,
+    "CBC-CS3": NO_OID,
+    "AES-128-CTS": NO_OID,
+    "AES-192-CTS": NO_OID,
+    "AES-256-CTS": NO_OID,
 }
 
 CBC_CS_SYMMETRIC_ENCRYPTION_SCHEME_OID_VALUES := {
@@ -318,11 +320,11 @@ EAX_AE_ALGORITHM_FAMILIES := {
 }
 
 EAX_AE_ALGORITHM_OIDS := {
-    "EAX": null,
-    "AES-EAX": null,
-    "AES-128-EAX": null,
-    "AES-192-EAX": null,
-    "AES-256-EAX": null,
+    "EAX": NO_OID,
+    "AES-EAX": NO_OID,
+    "AES-128-EAX": NO_OID,
+    "AES-192-EAX": NO_OID,
+    "AES-256-EAX": NO_OID,
 }
 
 EAX_AE_ALGORITHM_OID_VALUES := {
@@ -404,9 +406,9 @@ CBC_ESSIV_DISK_ENCRYPTION_SCHEME_FAMILIES := {
 }
 
 CBC_ESSIV_DISK_ENCRYPTION_SCHEME_OIDS := {
-    "CBC-ESSIV": null,
-    "AES-CBC-ESSIV": null,
-    "aes-cbc-essiv:sha256": null,
+    "CBC-ESSIV": NO_OID,
+    "AES-CBC-ESSIV": NO_OID,
+    "aes-cbc-essiv:sha256": NO_OID,
 }
 
 CBC_ESSIV_DISK_ENCRYPTION_SCHEME_OID_VALUES := {

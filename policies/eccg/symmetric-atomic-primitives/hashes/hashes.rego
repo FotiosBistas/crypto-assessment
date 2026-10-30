@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_atomic_primitives.hashes.hash_primitives
 
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+
 import data.cbom.eccg.general_helpers.build_finding
 
 import data.cbom.eccg.classifying_helpers.is_hash_primitive
@@ -34,7 +36,7 @@ findings contains finding if {
     finding := build_finding(
         "ECCG-HASH-001",
         "critical",
-        sprintf("Hash function '%s' is not in the agreed hash function list. The agreed hash functions are the following %s.", [component.name, AGREED_HASH_ALGORITHM_NAMES]),
+        sprintf("Hash function '%s' is not in the agreed hash function list. The agreed hash functions are the following %s.", [get_component_name_or_empty(component), AGREED_HASH_ALGORITHM_NAMES]),
         component,
         hash_primitive_metadata(component),
     )
@@ -58,7 +60,7 @@ findings contains finding if {
         "medium",
         sprintf(
             "Hash function '%s' has output length %v bits, which is below the recommended %d bits for quantum-sensitive contexts",
-            [component.name, get_component_parameter_set_identifier_to_number_or_negative_one(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH]
+            [get_component_name_or_empty(component), get_component_parameter_set_identifier_to_number_or_negative_one(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_HASH]
         ),
         component,
         object.union(

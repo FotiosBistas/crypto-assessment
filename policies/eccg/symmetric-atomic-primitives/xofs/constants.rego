@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_atomic_primitives.xofs.constants 
 
+import data.cbom.eccg.oid_constants.NO_OID
+
 MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_XOF := 256
 
 # ============================================================
@@ -49,8 +51,8 @@ CSHAKE_XOF_ALGORITHM_FAMILIES := {
 }
 
 CSHAKE_XOF_ALGORITHM_OIDS := {
-    "CSHAKE128": null, 
-    "CSHAKE256": null,
+    "CSHAKE128": NO_OID,
+    "CSHAKE256": NO_OID,
 }
 
 CSHAKE_XOF_ALGORITHM_OID_VALUES := {oid | oid := CSHAKE_XOF_ALGORITHM_OIDS[_]}

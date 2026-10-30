@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_constructions.key_protection.constants
 
+import data.cbom.eccg.oid_constants.NO_OID
+
 #
 # Sources:
 # - https://www.rfc-editor.org/rfc/rfc5297
@@ -69,9 +71,9 @@ AES_GCM_SIV_AE_ALGORITHM_FAMILIES := {
 
 # No OIDs verified from RFC 8452 or the IANA AEAD registry.
 AES_GCM_SIV_AE_ALGORITHM_OIDS := {
-    "AES-GCM-SIV": null,
-    "AES-128-GCM-SIV": null,
-    "AES-256-GCM-SIV": null,
+    "AES-GCM-SIV": NO_OID,
+    "AES-128-GCM-SIV": NO_OID,
+    "AES-256-GCM-SIV": NO_OID,
 }
 
 AES_GCM_SIV_AE_ALGORITHM_OID_VALUES := {

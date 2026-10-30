@@ -41,7 +41,7 @@ findings contains finding if {
         "critical",
         sprintf(
             "Symmetric encryption scheme '%s' is not in the agreed scheme list %s.",
-            [component.name, AGREED_SYMMETRIC_ENCRYPTION_SCHEME_NAMES]
+            [get_component_name_or_empty(component), AGREED_SYMMETRIC_ENCRYPTION_SCHEME_NAMES]
         ),
         component,
         symmetric_encryption_scheme_metadata(component),
@@ -68,7 +68,7 @@ findings contains finding if {
         "warning",
         sprintf(
             "Scheme '%s' is only conditionally recommended; standalone use is legacy unless additional integrity is provided. The recommended integrity scheme Encrypt-then-MAC.",
-            [component.name]
+            [get_component_name_or_empty(component)]
         ),
         component,
         object.union(

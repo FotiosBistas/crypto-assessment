@@ -62,7 +62,8 @@ is_ecb_scheme(component) if {
     oid in ECB_SYMMETRIC_ENCRYPTION_SCHEME_OID_VALUES
 } else if {
     family := get_component_algorithm_family_or_empty(component)
-    family in ECB_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    some known_family in ECB_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    family == lower(known_family)
     mode := get_component_mode_or_empty(component)
     mode == "ecb"
 } else if {
@@ -78,7 +79,8 @@ is_ctr_scheme(component) if {
     oid in CTR_SYMMETRIC_ENCRYPTION_SCHEME_OID_VALUES
 } else if {
     family := get_component_algorithm_family_or_empty(component)
-    family in CTR_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    some known_family in CTR_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    family == lower(known_family)
     mode := get_component_mode_or_empty(component)
     mode == "ctr"
 } else if {
@@ -94,7 +96,8 @@ is_ofb_scheme(component) if {
     oid in OFB_SYMMETRIC_ENCRYPTION_SCHEME_OID_VALUES
 } else if {
     family := get_component_algorithm_family_or_empty(component)
-    family in OFB_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    some known_family in OFB_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    family == lower(known_family)
     mode := get_component_mode_or_empty(component)
     mode == "ofb"
 } else if {
@@ -110,7 +113,8 @@ is_cbc_scheme(component) if {
     oid in CBC_SYMMETRIC_ENCRYPTION_SCHEME_OID_VALUES
 } else if {
     family := get_component_algorithm_family_or_empty(component)
-    family in CBC_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    some known_family in CBC_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    family == lower(known_family)
     mode := get_component_mode_or_empty(component)
     mode == "cbc"
 } else if {
@@ -144,7 +148,8 @@ is_cfb_scheme(component) if {
     oid in CFB_SYMMETRIC_ENCRYPTION_SCHEME_OID_VALUES
 } else if {
     family := get_component_algorithm_family_or_empty(component)
-    family in CFB_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    some known_family in CFB_SYMMETRIC_ENCRYPTION_SCHEME_FAMILIES
+    family == lower(known_family)
     mode := get_component_mode_or_empty(component)
     mode == "cfb"
 } else if {
@@ -196,7 +201,8 @@ is_cbc_essiv_scheme(component) if {
     oid in CBC_ESSIV_DISK_ENCRYPTION_SCHEME_OID_VALUES
 } else if {
     family := get_component_algorithm_family_or_empty(component)
-    family in CBC_ESSIV_DISK_ENCRYPTION_SCHEME_FAMILIES
+    some known_family in CBC_ESSIV_DISK_ENCRYPTION_SCHEME_FAMILIES
+    family == lower(known_family)
     mode := get_component_mode_or_empty(component)
     mode == "cbc"
 } else if {
@@ -249,7 +255,8 @@ is_ccm_scheme(component) if {
     oid in CCM_AE_ALGORITHM_OID_VALUES
 } else if {
     family := get_component_algorithm_family_or_empty(component)
-    family in CCM_AE_ALGORITHM_FAMILIES
+    some known_family in CCM_AE_ALGORITHM_FAMILIES
+    family == lower(known_family)
     mode := get_component_mode_or_empty(component)
     mode == "ccm"
 } else if {
@@ -267,7 +274,8 @@ is_gcm_scheme(component) if {
     oid in GCM_AE_ALGORITHM_OID_VALUES
 } else if {
     family := get_component_algorithm_family_or_empty(component)
-    family in GCM_AE_ALGORITHM_FAMILIES
+    some known_family in GCM_AE_ALGORITHM_FAMILIES
+    family == lower(known_family)
     mode := get_component_mode_or_empty(component)
     mode == "gcm"
 } else if {

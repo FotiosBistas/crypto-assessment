@@ -401,7 +401,7 @@ findings contains finding if {
         "warning",
         sprintf(
             "Encryption primitive '%s' and MAC primitive '%s' occur in close source-code proximity. Verify that the implementation uses an ECCG-agreed composition, meaning Encrypt-then-MAC.",
-            [component_a.name, component_b.name]
+            [get_component_name_or_empty(component_a), get_component_name_or_empty(component_b)]
         ),
         component_a,
         object.union(

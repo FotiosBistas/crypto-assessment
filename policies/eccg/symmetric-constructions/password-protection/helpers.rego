@@ -24,7 +24,8 @@ is_argon2id_scheme(component) if {
 } else if {
     is_kdf_primitive(component)
     family := get_component_algorithm_family_or_empty(component)
-    family in ARGON2ID_PASSWORD_HASHING_SCHEME_FAMILIES
+    some known_family in ARGON2ID_PASSWORD_HASHING_SCHEME_FAMILIES
+    family == lower(known_family)
 } else if {
     is_kdf_primitive(component)
     name := get_component_name_or_empty(component)
@@ -39,7 +40,8 @@ is_pbkdf2_scheme(component) if {
 } else if {
     is_kdf_primitive(component)
     family := get_component_algorithm_family_or_empty(component)
-    family in PBKDF2_PASSWORD_HASHING_SCHEME_FAMILIES
+    some known_family in PBKDF2_PASSWORD_HASHING_SCHEME_FAMILIES
+    family == lower(known_family)
 } else if {
     is_kdf_primitive(component)
     name := get_component_name_or_empty(component)

@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_atomic_primitives.block_ciphers.block_ciphers
 
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+
 import data.cbom.eccg.general_helpers.build_finding
 import data.cbom.eccg.general_helpers.legacy_marker_status
 import data.cbom.eccg.general_helpers.legacy_status_severity
@@ -51,7 +53,7 @@ findings contains finding if {
     finding := build_finding(
         "ECCG-BLOCK-001",
         "critical",
-        sprintf("Block cipher '%s' is not in the agreed Block Cipher primitive list. The agreed Block Ciphers primitives are the following: %s", [component.name, AGREED_BLOCK_CIPHER_ALGORITHM_NAMES]),
+        sprintf("Block cipher '%s' is not in the agreed Block Cipher primitive list. The agreed Block Ciphers primitives are the following: %s", [get_component_name_or_empty(component), AGREED_BLOCK_CIPHER_ALGORITHM_NAMES]),
         component,
         block_cipher_metadata(component),
     )
@@ -184,7 +186,7 @@ findings contains finding if {
         "medium",
         sprintf(
             "Cipher '%s' uses %v-bit keying, which is below %d bits and should be avoided where resistance to quantum attacks is required.",
-            [component.name, get_component_parameter_set_identifier_to_number_or_negative_one(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER]
+            [get_component_name_or_empty(component), get_component_parameter_set_identifier_to_number_or_negative_one(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_BLOCK_CIPHER]
         ),
         component,
         object.union(

@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_constructions.macs.constants
 
+import data.cbom.eccg.oid_constants.NO_OID
+
 MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_MACS := 192
 MINIMUM_MAC_BITS_TRUNCATED_OUTPUT := 96
 GMAC_INITIALIZATION_VECTOR_REQUIRED_BITS := 96
@@ -48,7 +50,7 @@ CBC_MAC_ALGORITHM_NAMES := {
 }
 
 CBC_MAC_ALGORITHM_FAMILIES := {
-    "CBC-MAC": null,
+    "CBC-MAC": NO_OID,
 }
 
 CBC_MAC_ALGORITHM_OIDS := {

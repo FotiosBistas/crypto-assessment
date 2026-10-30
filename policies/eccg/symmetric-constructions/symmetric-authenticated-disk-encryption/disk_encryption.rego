@@ -79,7 +79,7 @@ findings contains finding if {
         "low",
         sprintf(
             "Scheme '%s' is a stream-mode construction and is improper for disk encryption. Note that currently it's not possible to detect these schemes accurately through CBOM. There might be some false positives.",
-            [component.name]
+            [get_component_name_or_empty(component)]
         ),
         component,
         object.union(

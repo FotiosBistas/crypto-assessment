@@ -1,5 +1,7 @@
 package cbom.eccg.asymmetric_atomic_primitives.discrete_logarithm_in_finite_fields.constants
 
+import data.cbom.eccg.oid_constants.NO_OID
+
 MINIMUM_FF_DLOG_GROUP_BITS := 3072
 
 AGREED_FF_DLOG_GROUP_FAMILIES := {
@@ -148,16 +150,16 @@ MODP_FF_DLOG_SCHEME_FAMILIES := {"FFDH"}
 
 # No dedicated ASN.1 OIDs verified for these groups.
 MODP_FF_DLOG_SCHEME_OIDS := {
-	"MODP-3072": null,
-	"MODP-4096": null,
-	"MODP-6144": null,
-	"MODP-8192": null,
+	"MODP-3072": NO_OID,
+	"MODP-4096": NO_OID,
+	"MODP-6144": NO_OID,
+	"MODP-8192": NO_OID,
 }
 
 MODP_FF_DLOG_SCHEME_OID_VALUES := {
 oid |
 	some _, oid in MODP_FF_DLOG_SCHEME_OIDS
-	oid != null
+	oid != NO_OID
 }
 
 # IANA IKE group identifiers (NOT OIDs)
@@ -223,16 +225,16 @@ FFDHE_FF_DLOG_SCHEME_FAMILIES := {"FFDH"}
 
 # No dedicated ASN.1 OIDs verified for these groups.
 FFDHE_FF_DLOG_SCHEME_OIDS := {
-	"ffdhe3072": null,
-	"ffdhe4096": null,
-	"ffdhe6144": null,
-	"ffdhe8192": null,
+	"ffdhe3072": NO_OID,
+	"ffdhe4096": NO_OID,
+	"ffdhe6144": NO_OID,
+	"ffdhe8192": NO_OID,
 }
 
 FFDHE_FF_DLOG_SCHEME_OID_VALUES := {
 oid |
 	some _, oid in FFDHE_FF_DLOG_SCHEME_OIDS
-	oid != null
+	oid != NO_OID
 }
 
 # IANA TLS NamedGroup identifiers (NOT OIDs)

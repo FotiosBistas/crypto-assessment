@@ -1,5 +1,7 @@
 package cbom.eccg.asymmetric_atomic_primitives.rsa_integer_factorization.constants
 
+import data.cbom.eccg.oid_constants.NO_OID
+
 MINIMUM_RSA_MODULUS_LENGTH := 3000
 
 #
@@ -68,15 +70,15 @@ RSA_PRIMITIVE_OIDS := {
 	"SHA384withRSA": "1.2.840.113549.1.1.12",
 	"SHA512withRSA": "1.2.840.113549.1.1.13",
 	# No OIDs assigned specifically to these key sizes
-	"RSA-1024": null,
-	"RSA-2048": null,
-	"RSA-3072": null,
-	"RSA-4096": null,
-	"RSA-8192": null,
+	"RSA-1024": NO_OID,
+	"RSA-2048": NO_OID,
+	"RSA-3072": NO_OID,
+	"RSA-4096": NO_OID,
+	"RSA-8192": NO_OID,
 }
 
 RSA_PRIMITIVE_OID_VALUES := {
 oid |
 	some _, oid in RSA_PRIMITIVE_OIDS
-	oid != null
+	oid != NO_OID
 }

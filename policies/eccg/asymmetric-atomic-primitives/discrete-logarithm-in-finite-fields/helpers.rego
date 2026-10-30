@@ -90,7 +90,7 @@ get_ffdlog_parameter_set_number(component) := bits if {
 } else := -1
 
 # An explicit parameter group takes precedence over an OID or scheme name/family.
-# OID value sets exclude null placeholders until verified OIDs are supplied.
+# OID value sets exclude NO_OID placeholders until verified OIDs are supplied.
 # FFDH alone identifies a construction, not an approved parameter family.
 get_ffdlog_group_family_or_empty(component) := family if {
 	parameter := get_ffdlog_parameter_set(component)

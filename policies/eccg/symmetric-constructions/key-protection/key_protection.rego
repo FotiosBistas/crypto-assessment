@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_constructions.key_protection
 
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+
 import data.cbom.eccg.general_helpers.build_finding
 
 import data.cbom.eccg.classifying_helpers.is_key_wrap_or_ae_primitive
@@ -43,7 +45,7 @@ findings contains finding if {
         "medium",
         sprintf(
             "Key protection scheme '%s' is not in the agreed key-protection list. Agreed schemes are AES Key Wrap, AES Key Wrap with Padding, and SIV. This might be a false positive since there is no way to distinguish key protection schemes from the CBOM.",
-            [component.name]
+            [get_component_name_or_empty(component)]
         ),
         component,
         key_protection_scheme_metadata(component)

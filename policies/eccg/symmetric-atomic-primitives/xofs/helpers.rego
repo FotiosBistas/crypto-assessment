@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_atomic_primitives.xofs.helpers
 
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+
 import data.cbom.eccg.classifying_helpers.is_xof_primitive
 
 import data.cbom.eccg.getter_helpers.get_component_oid_or_empty
@@ -24,7 +26,7 @@ is_shake256(component) if {
     oid == SHAKE_XOF_ALGORITHM_OIDS["SHAKE256"]
 } else if {
     is_xof_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "shake256")
 }
 
@@ -34,7 +36,7 @@ is_shake128(component) if {
     oid == SHAKE_XOF_ALGORITHM_OIDS["SHAKE128"]
 } else if {
     is_xof_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "shake128")
 }
 
@@ -44,7 +46,7 @@ is_cshake256(component) if {
     oid == CSHAKE_XOF_ALGORITHM_OIDS["CSHAKE256"]
 } else if {
     is_xof_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "cshake256")
 }
 
@@ -54,7 +56,7 @@ is_cshake128(component) if {
     oid == CSHAKE_XOF_ALGORITHM_OIDS["CSHAKE128"]
 } else if {
     is_xof_primitive(component)
-    normalized_name := normalize_crypto_identifier(component.name)
+    normalized_name := normalize_crypto_identifier(get_component_name_or_empty(component))
     contains(normalized_name, "cshake128")
 }
 

@@ -49,7 +49,7 @@ is_rsa_scheme(component) if {
 	normalized_name in rsa_names
 } else if {
 	is_public_key_eccg_primitive(component)
-	name := lower(trim_space(get_component_name_or_empty(component)))
+	name := get_component_name_or_empty(component)
 
 	# Registry-style RSA names may append hash, padding, or size parameters.
 	regex.match("^(rsa|rsaes|rsassa)([-_/ ]|$)", name)

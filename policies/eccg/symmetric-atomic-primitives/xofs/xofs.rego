@@ -1,5 +1,7 @@
 package cbom.eccg.symmetric_atomic_primitives.xofs.xofs
 
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+
 import data.cbom.eccg.classifying_helpers.is_xof_primitive
 import data.cbom.eccg.getter_helpers.get_note
 import data.cbom.eccg.getter_helpers.get_component_parameter_set_identifier_to_number_or_negative_one
@@ -33,7 +35,7 @@ findings contains finding if {
     finding := build_finding(
         "ECCG-XOF-001",
         "critical",
-        sprintf("XOF function '%s' is not in the agreed xof function list. The agreed xof functions are the following %s.", [component.name, AGREED_XOF_ALGORITHM_NAMES]),
+        sprintf("XOF function '%s' is not in the agreed xof function list. The agreed xof functions are the following %s.", [get_component_name_or_empty(component), AGREED_XOF_ALGORITHM_NAMES]),
         component,
         xof_primitive_metadata(component),
     )
@@ -57,7 +59,7 @@ findings contains finding if {
         "medium",
         sprintf(
             "XOF function '%s' has output length %v bits, which is below the recommended %d bits for quantum-sensitive contexts",
-            [component.name, get_component_parameter_set_identifier_to_number_or_negative_one(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_XOF]
+            [get_component_name_or_empty(component), get_component_parameter_set_identifier_to_number_or_negative_one(component), MINIMUM_RECOMMENDED_BITS_FOR_QUANTUM_SENSITIVE_CONTEXT_XOF]
         ),
         component,
         object.union(

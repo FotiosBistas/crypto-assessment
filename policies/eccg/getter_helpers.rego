@@ -24,19 +24,24 @@ get_note(section, subsection, note_string_id) := note if {
     "text": "Note not found"
 }
 
-get_component_name_or_empty(component) := name if {
+# Convention: algorithm names, families, curves, parameter identifiers and
+# enum strings return lower(trim_space(value)); punctuation is preserved.
+# OIDs, references, file paths and source context are trimmed without changing
+# case. Object, array and numeric getters retain their existing return types.
+# Callers do not need to repeat lower/trim_space on normalized getter results.
+get_component_name_or_empty(component) := lower(trim_space(name)) if {
     name := object.get(component, "name", "")
     is_string(name)
     name != ""
 } else := ""
 
-get_component_bom_ref_or_empty(component) := bom_ref if {
+get_component_bom_ref_or_empty(component) := trim_space(bom_ref) if {
     bom_ref := object.get(component, "bom-ref", "")
     is_string(bom_ref)
     bom_ref != ""
 } else := ""
 
-get_component_additional_context_or_empty(component) := additional_context if {
+get_component_additional_context_or_empty(component) := trim_space(additional_context) if {
     additional_context := object.get(component, "additionalContext", "")
     is_string(additional_context)
     additional_context != ""
@@ -88,7 +93,8 @@ get_component_dependency(component) := dependency if {
     is_object(dependency)
 
     dep_ref := object.get(dependency, "ref", "")
-    dep_ref == bom_ref
+    is_string(dep_ref)
+    trim_space(dep_ref) == bom_ref
 } else := {}
 
 # Retrieve the bom-ref values of a component's direct dependencies.
@@ -112,12 +118,18 @@ get_component_dependency(component) := dependency if {
 # Returns an empty array if the component has no dependency entry
 # or if the "dependsOn" field is missing or is not an array.
 #
+# References are trimmed; blank and non-string entries are ignored.
 # Note: Only direct dependencies are returned, not transitive ones.
 get_component_dependency_refs_or_empty(component) := refs if {
     dependency := get_component_dependency(component)
 
-    refs := object.get(dependency, "dependsOn", [])
-    is_array(refs)
+    raw_refs := object.get(dependency, "dependsOn", [])
+    is_array(raw_refs)
+    refs := [trim_space(ref) |
+        some ref in raw_refs
+        is_string(ref)
+        trim_space(ref) != ""
+    ]
 } else := []
 
 # Resolve a component's direct dependency references into component objects.
@@ -170,7 +182,7 @@ get_component_related_crypto_material_properties_or_empty(component) := related_
     related_crypto_material_properties != {}
 } else := {}
 
-get_related_crypto_material_type_or_empty(component) := type if {
+get_related_crypto_material_type_or_empty(component) := lower(trim_space(type)) if {
     related_crypto_material_properties := get_component_related_crypto_material_properties_or_empty(component)
     related_crypto_material_properties != {}
 
@@ -195,16 +207,16 @@ get_component_crypto_properties_or_empty(component) := crypto_properties if {
 } else := {}
 
 
-get_component_asset_type_or_empty(component) := asset_type if {
+get_component_asset_type_or_empty(component) := lower(trim_space(asset_type)) if {
     crypto_properties := get_component_crypto_properties_or_empty(component)
     crypto_properties != {}
 
     asset_type := object.get(crypto_properties, "assetType",  "")
     is_string(asset_type)
     asset_type != ""
-} else := {}
+} else := ""
 
-get_component_oid_or_empty(component) := oid if {
+get_component_oid_or_empty(component) := trim_space(oid) if {
     crypto_properties := get_component_crypto_properties_or_empty(component)
     crypto_properties != {}
 
@@ -222,7 +234,7 @@ get_component_algorithm_properties_or_empty(component) := algorithm_properties i
     algorithm_properties != {}
 } else := {}
 
-get_component_elliptic_curve_or_empty(component) := elliptic_curve if {
+get_component_elliptic_curve_or_empty(component) := lower(trim_space(elliptic_curve)) if {
     algorithm_properties := get_component_algorithm_properties_or_empty(component)
     algorithm_properties != {}
 
@@ -231,7 +243,7 @@ get_component_elliptic_curve_or_empty(component) := elliptic_curve if {
     elliptic_curve != ""
 } else := ""
 
-get_component_algorithm_family_or_empty(component) := algorithm_family if {
+get_component_algorithm_family_or_empty(component) := lower(trim_space(algorithm_family)) if {
     crypto_properties := get_component_algorithm_properties_or_empty(component)
     crypto_properties != {}
 
@@ -242,7 +254,7 @@ get_component_algorithm_family_or_empty(component) := algorithm_family if {
 
 
 
-get_component_primitive_or_empty(component) := primitive if {
+get_component_primitive_or_empty(component) := lower(trim_space(primitive)) if {
     algorithm_properties := get_component_algorithm_properties_or_empty(component)
     algorithm_properties != {}
 
@@ -251,7 +263,7 @@ get_component_primitive_or_empty(component) := primitive if {
     primitive != ""
 } else := ""
 
-get_component_crypto_function_or_empty(component) := crypto_function if {
+get_component_crypto_function_or_empty(component) := lower(trim_space(crypto_function)) if {
     algorithm_properties := get_component_algorithm_properties_or_empty(component)
     algorithm_properties != {}
 
@@ -261,7 +273,7 @@ get_component_crypto_function_or_empty(component) := crypto_function if {
 } else := ""
 
 
-get_component_mode_or_empty(component) := mode if {
+get_component_mode_or_empty(component) := lower(trim_space(mode)) if {
     algorithm_properties := get_component_algorithm_properties_or_empty(component)
     algorithm_properties != {}
 
@@ -270,7 +282,7 @@ get_component_mode_or_empty(component) := mode if {
     mode != ""
 } else := ""
 
-get_component_parameter_set_identifier_or_empty(component) := parameter_set_identifier if {
+get_component_parameter_set_identifier_or_empty(component) := lower(trim_space(parameter_set_identifier)) if {
     algorithm_properties := get_component_algorithm_properties_or_empty(component)
     algorithm_properties != {}
 
@@ -301,12 +313,15 @@ get_component_evidence_occurrences_or_empty(component) := occurrences if {
 } else := []
 
 get_component_by_bomref(bom_ref) := component if {
+    is_string(bom_ref)
+    ref := trim_space(bom_ref)
+    ref != ""
     some i
     component := input.components[i]
-    component["bom-ref"] == bom_ref
+    get_component_bom_ref_or_empty(component) == ref
 }
 
-get_component_occurrence_location_or_empty(occurrence) := location if {
+get_component_occurrence_location_or_empty(occurrence) := trim_space(location) if {
     location := object.get(occurrence, "location", "")
     is_string(location)
     location != ""
@@ -324,7 +339,7 @@ get_component_occurrence_offset_or_negative_one(occurrence) := offset if {
     offset != -1
 } else := -1
 
-get_component_occurrence_additional_context_or_empty(occurrence) := additional_context if {
+get_component_occurrence_additional_context_or_empty(occurrence) := trim_space(additional_context) if {
     additional_context := object.get(occurrence, "additionalContext", "")
     is_string(additional_context)
     additional_context != ""
@@ -411,16 +426,14 @@ get_related_component_by_primitive(parent_component, candidate_primitive) := can
 # - curve (deprecated)
 #
 get_component_algorithm_identifier_text(component) := text if {
-    text := sprintf(
-        "%v %v %v %v %v ",
-        [
-            get_component_name_or_empty(component),
-            get_component_primitive_or_empty(component),
-            get_component_algorithm_family_or_empty(component),
-            get_component_parameter_set_identifier_or_empty(component),
-            get_component_elliptic_curve_or_empty(component),
-        ]
-    )
+    identifiers := [
+        get_component_name_or_empty(component),
+        get_component_primitive_or_empty(component),
+        get_component_algorithm_family_or_empty(component),
+        get_component_parameter_set_identifier_or_empty(component),
+        get_component_elliptic_curve_or_empty(component),
+    ]
+    text := concat(" ", [identifier | some identifier in identifiers; identifier != ""])
 }
 
 get_components_shared_source_files(component_a, component_b) := shared_locations if {
@@ -552,10 +565,7 @@ get_first_source_line_or_negative_one(component) := line if {
 get_related_algorithm_for_key_material_or_empty(key_component) := algorithm_component if {
     get_component_asset_type_or_empty(key_component) == "related-crypto-material"
 
-    dependency := get_component_dependency(key_component)
-    dependency != {}
-
-    algorithm_ref := dependency.dependsOn[_]
+    some algorithm_ref in get_component_dependency_refs_or_empty(key_component)
 
     algorithm_component := input.components[_]
     get_component_bom_ref_or_empty(algorithm_component) == algorithm_ref
@@ -680,7 +690,7 @@ get_ec_curve_or_empty(component) := curve if {
 # Extract one distinct known curve from text. Multiple aliases for the same
 # curve are deduplicated; different curves, malformed input, and no match
 # return an empty string. Recognition is independent of ECCG approval.
-get_ec_curve_from_text_or_empty(text) := curve if {
+get_ec_curve_from_text_or_empty(text) := lower(curve) if {
     matches := get_ec_curve_matches(text)
     count(matches) == 1
     some curve in matches

@@ -49,7 +49,8 @@ is_hmac_scheme(component) if {
 } else if {
     is_mac_primitive(component)
     algorithm_family := get_component_algorithm_family_or_empty(component)
-    algorithm_family in HMAC_MAC_ALGORITHM_FAMILIES
+    some known_family in HMAC_MAC_ALGORITHM_FAMILIES
+    algorithm_family == lower(known_family)
 } else if {
     is_mac_primitive(component)
     name := get_component_name_or_empty(component)
@@ -75,7 +76,8 @@ is_kmac_scheme(component) if {
 } else if {
     is_mac_primitive(component)
     algorithm_family := get_component_algorithm_family_or_empty(component)
-    algorithm_family in KMAC_MAC_ALGORITHM_FAMILIES
+    some known_family in KMAC_MAC_ALGORITHM_FAMILIES
+    algorithm_family == lower(known_family)
 } else if {
     is_mac_primitive(component)
     name := get_component_name_or_empty(component)
@@ -101,7 +103,8 @@ is_cmac_scheme(component) if {
 } else if {
     is_mac_primitive(component)
     algorithm_family := get_component_algorithm_family_or_empty(component)
-    algorithm_family in CMAC_MAC_ALGORITHM_FAMILIES
+    some known_family in CMAC_MAC_ALGORITHM_FAMILIES
+    algorithm_family == lower(known_family)
 } else if {
     is_mac_primitive(component)
     name := get_component_name_or_empty(component)

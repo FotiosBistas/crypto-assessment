@@ -1,4 +1,6 @@
 package cbom.eccg.symmetric_constructions.password_protection.constants
+
+import data.cbom.eccg.oid_constants.NO_OID
 ARGON2ID_ITERATIONS_REQUIRED := 1
 ARGON2ID_PARALLELISM_REQUIRED := 4
 ARGON2ID_MEMORY_REQUIRED_KIB := 2097152
@@ -35,11 +37,11 @@ ARGON2ID_PASSWORD_HASHING_SCHEME_FAMILIES := {
 
 # No Argon2id OID verified in RFC 9106.
 ARGON2ID_PASSWORD_HASHING_SCHEME_OIDS := {
-    "Argon2id": null,
-    "Argon2-id": null,
-    "ARGON2ID": null,
-    "argon2id": null,
-    "Argon2id-v19": null,
+    "Argon2id": NO_OID,
+    "Argon2-id": NO_OID,
+    "ARGON2ID": NO_OID,
+    "argon2id": NO_OID,
+    "Argon2id-v19": NO_OID,
 }
 
 ARGON2ID_PASSWORD_HASHING_SCHEME_OID_VALUES := {
