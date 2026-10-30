@@ -1,7 +1,5 @@
 package cbom.eccg.getter_helpers
 
-import data.cbom.eccg.general_helpers.normalize_crypto_identifier
-
 import data.cbom.eccg.relationship_helpers.depends_on_component
 import data.cbom.eccg.relationship_helpers.component_matches_primitive
 import data.cbom.eccg.relationship_helpers.components_share_evidence_location_and_line
@@ -263,14 +261,22 @@ get_component_primitive_or_empty(component) := lower(trim_space(primitive)) if {
     primitive != ""
 } else := ""
 
-get_component_crypto_function_or_empty(component) := lower(trim_space(crypto_function)) if {
+# Return normalized functions as an array; accept a legacy scalar as one item.
+get_component_crypto_function_or_empty(component) := crypto_functions if {
     algorithm_properties := get_component_algorithm_properties_or_empty(component)
-    algorithm_properties != {}
-
+    raw := object.get(algorithm_properties, "cryptoFunctions", [])
+    is_array(raw)
+    crypto_functions := [lower(trim_space(fn)) |
+        some fn in raw
+        is_string(fn)
+        trim_space(fn) != ""
+    ]
+} else := [lower(trim_space(crypto_function))] if {
+    algorithm_properties := get_component_algorithm_properties_or_empty(component)
     crypto_function := object.get(algorithm_properties, "cryptoFunctions", "")
     is_string(crypto_function)
-    crypto_function != ""
-} else := ""
+    trim_space(crypto_function) != ""
+} else := []
 
 
 get_component_mode_or_empty(component) := lower(trim_space(mode)) if {

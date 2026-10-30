@@ -1,7 +1,5 @@
 package cbom.eccg.symmetric_constructions.mac
-
-
-import data.cbom.eccg.getter_helpers.get_component_name_or_empty
+import data.cbom.eccg.getter_helpers.get_component_name_or_empty 
 import data.cbom.eccg.getter_helpers.get_component_bom_ref_or_empty
 import data.cbom.eccg.getter_helpers.get_note
 

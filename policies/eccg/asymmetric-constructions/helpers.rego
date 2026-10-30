@@ -7,110 +7,7 @@ import data.cbom.eccg.general_helpers.normalize_crypto_identifier
 import data.cbom.eccg.getter_helpers.get_component_algorithm_identifier_text
 import data.cbom.eccg.getter_helpers.get_component_asset_type_or_empty
 import data.cbom.eccg.getter_helpers.get_component_name_or_empty
-
-RECOMMENDED_ASYMMETRIC_ENCRYPTION_SCHEME := "RSAES-OAEP (PKCS #1 v2.2 / RFC 8017)"
-LEGACY_ASYMMETRIC_ENCRYPTION_SCHEME := "RSAES-PKCS1-v1_5 (PKCS #1 v1.5 / RFC 8017)"
-
-normalize_asymmetric_encryption_text(text) := normalized if {
-    base := normalize_crypto_identifier(text)
-    no_slash := replace(base, "/", "")
-    no_hash := replace(no_slash, "#", "")
-    no_dot := replace(no_hash, ".", "")
-    normalized := replace(no_dot, "_", "")
-}
-
-asymmetric_encryption_text(component) := text if {
-    props := object.get(component.cryptoProperties, "algorithmProperties", {})
-
-    text := sprintf(
-        "%v %v %v %v %v",
-        [
-            object.get(component, "name", ""),
-            object.get(props, "algorithmFamily", ""),
-            object.get(props, "padding", ""),
-            object.get(props, "mode", ""),
-            object.get(props, "parameterSetIdentifier", ""),
-        ],
-    )
-}
-
-normalized_asymmetric_encryption_text(component) := normalized if {
-    text := asymmetric_encryption_text(component)
-    normalized := normalize_asymmetric_encryption_text(text)
-}
-
-component_has_encrypt_or_decrypt_function(component) if {
-    props := object.get(component.cryptoProperties, "algorithmProperties", {})
-    some fn in object.get(props, "cryptoFunctions", [])
-
-    normalized_fn := normalize_crypto_identifier(fn)
-    normalized_fn == "encrypt"
-} else if {
-    props := object.get(component.cryptoProperties, "algorithmProperties", {})
-    some fn in object.get(props, "cryptoFunctions", [])
-
-    normalized_fn := normalize_crypto_identifier(fn)
-    normalized_fn == "decrypt"
-}
-
-is_rsa_context(component) if {
-    normalized := normalized_asymmetric_encryption_text(component)
-    contains(normalized, "rsa")
-}
-
-is_rsaes_oaep_scheme(component) if {
-    normalized := normalized_asymmetric_encryption_text(component)
-    contains(normalized, "oaep")
-} else if {
-    normalized := normalized_asymmetric_encryption_text(component)
-    contains(normalized, "rsaesoaep")
-}
-
-is_rsaes_pkcs1_v1_5_scheme(component) if {
-    normalized := normalized_asymmetric_encryption_text(component)
-    contains(normalized, "pkcs1v15")
-} else if {
-    normalized := normalized_asymmetric_encryption_text(component)
-    contains(normalized, "pkcs1v1")
-} else if {
-    normalized := normalized_asymmetric_encryption_text(component)
-    contains(normalized, "pkcs1padding")
-} else if {
-    normalized := normalized_asymmetric_encryption_text(component)
-    contains(normalized, "rsaespkcs1")
-}
-
-is_identifiable_asymmetric_encryption_scheme(component) if {
-    component.cryptoProperties.assetType == "algorithm"
-    is_rsa_context(component)
-    is_rsaes_oaep_scheme(component)
-} else if {
-    component.cryptoProperties.assetType == "algorithm"
-    is_rsa_context(component)
-    is_rsaes_pkcs1_v1_5_scheme(component)
-} else if {
-    component.cryptoProperties.assetType == "algorithm"
-    component_has_encrypt_or_decrypt_function(component)
-    is_rsa_context(component)
-} else if {
-    component.cryptoProperties.assetType == "algorithm"
-    normalized := normalized_asymmetric_encryption_text(component)
-
-    contains(normalized, "ecies")
-} else if {
-    component.cryptoProperties.assetType == "algorithm"
-    normalized := normalized_asymmetric_encryption_text(component)
-
-    contains(normalized, "elgamal")
-}
-
-is_unknown_rsa_encryption_scheme(component) if {
-    component.cryptoProperties.assetType == "algorithm"
-    component_has_encrypt_or_decrypt_function(component)
-    is_rsa_context(component)
-    not is_rsaes_oaep_scheme(component)
-    not is_rsaes_pkcs1_v1_5_scheme(component)
-}
+import data.cbom.eccg.getter_helpers.get_component_primitive_or_empty
 
 eccg_recommended_signature_scheme_display_names := [
     "RSASSA-PSS (PKCS#1 v2.1; RFC 8017, PKCS#1, ISO 9796-2)",
@@ -143,14 +40,10 @@ normalize_signature_scheme_name(name) := normalized if {
 }
 
 is_digital_signature_algorithm(component) if {
-    crypto_properties := object.get(component, "cryptoProperties", {})
-    object.get(crypto_properties, "assetType", "") == "algorithm"
-
-    algorithm_properties := object.get(crypto_properties, "algorithmProperties", {})
-    lower(object.get(algorithm_properties, "primitive", "")) == "signature"
+    get_component_asset_type_or_empty(component) == "algorithm"
+    get_component_primitive_or_empty(component) == "signature"
 } else if {
-    crypto_properties := object.get(component, "cryptoProperties", {})
-    object.get(crypto_properties, "assetType", "") == "algorithm"
+    get_component_asset_type_or_empty(component) == "algorithm"
 
     name := get_component_name_or_empty(component)
     normalized_name := normalize_signature_scheme_name(name)

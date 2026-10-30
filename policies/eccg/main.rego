@@ -78,7 +78,7 @@ policy_sources := [
     {
         "section": "Asymmetric Constructions",
         "subsection": "Asymmetric Encryption Schemes",
-        "findings": data.cbom.eccg.asymmetric_constructions.asymmetric_encryption.findings
+        "findings": data.cbom.eccg.asymmetric_constructions.asymmetric_encryption_schemes.findings
     },
     {
         "section": "Asymmetric Constructions",

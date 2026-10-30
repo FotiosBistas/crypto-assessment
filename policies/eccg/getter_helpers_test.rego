@@ -16,7 +16,6 @@ string_getter_results(value) := [
 	getters.get_component_elliptic_curve_or_empty(asset),
 	getters.get_component_algorithm_family_or_empty(asset),
 	getters.get_component_primitive_or_empty(asset),
-	getters.get_component_crypto_function_or_empty(asset),
 	getters.get_component_mode_or_empty(asset),
 	getters.get_component_parameter_set_identifier_or_empty(asset),
 	getters.get_component_occurrence_location_or_empty(occurrence),
@@ -34,7 +33,6 @@ string_getter_results(value) := [
 				"ellipticCurve": value,
 				"algorithmFamily": value,
 				"primitive": value,
-				"cryptoFunctions": value,
 				"mode": value,
 				"parameterSetIdentifier": value,
 			},
@@ -48,7 +46,7 @@ test_string_getters_lowercase_algorithms_and_preserve_case_sensitive_text if {
 		"mixed case/value-01", "Mixed Case/Value-01", "Mixed Case/Value-01",
 		"mixed case/value-01", "mixed case/value-01", "Mixed Case/Value-01",
 		"mixed case/value-01", "mixed case/value-01", "mixed case/value-01",
-		"mixed case/value-01", "mixed case/value-01", "mixed case/value-01",
+		"mixed case/value-01", "mixed case/value-01",
 		"Mixed Case/Value-01", "Mixed Case/Value-01",
 	]
 }
@@ -56,7 +54,7 @@ test_string_getters_lowercase_algorithms_and_preserve_case_sensitive_text if {
 test_string_getters_return_empty_for_blank_or_non_string_values if {
 	every value in ["", " \t\r\n\u00a0", null, true, 256, [], {}, ["RSA"]] {
 		results := string_getter_results(value)
-		count(results) == 14
+		count(results) == 13
 		every result in results {
 			result == ""
 		}
@@ -64,6 +62,31 @@ test_string_getters_return_empty_for_blank_or_non_string_values if {
 	getters.get_component_name_or_empty({}) == ""
 	getters.get_component_asset_type_or_empty({}) == ""
 	getters.get_component_asset_type_or_empty({"cryptoProperties": null}) == ""
+}
+
+test_crypto_functions_getter_normalizes_arrays_and_legacy_strings if {
+	every case in [
+		{"value": [" SIGN ", "VeRiFy", "\t", null, 7, {}, []], "expected": ["sign", "verify"]},
+		{"value": [" EnCrYpT ", " DeCrYpT "], "expected": ["encrypt", "decrypt"]},
+		{"value": " DeCrYpT ", "expected": ["decrypt"]},
+	] {
+		asset := ec_component("RSA", {"cryptoFunctions": case.value})
+		getters.get_component_crypto_function_or_empty(asset) == case.expected
+	}
+	every value in ["", " \t\n", null, true, 12, [], {}, [null, 12, " "]] {
+		getters.get_component_crypto_function_or_empty(ec_component("RSA", {"cryptoFunctions": value})) == []
+	}
+	getters.get_component_crypto_function_or_empty({}) == []
+}
+
+test_signature_classifiers_consume_normalized_crypto_functions if {
+	every functions in [[" SIGN ", " VERIFY "], " SiGn "] {
+		asset := ec_component("RSA", {"cryptoFunctions": functions})
+		data.cbom.eccg.classifying_helpers.is_sign_crypto_function(asset)
+	}
+	asset := ec_component("RSA", {"cryptoFunctions": [" SIGN ", " VERIFY "]})
+	data.cbom.eccg.classifying_helpers.is_verify_crypto_function(asset)
+	not data.cbom.eccg.classifying_helpers.is_sign_crypto_function(ec_component("RSA", {"cryptoFunctions": []}))
 }
 
 test_padded_parameter_set_can_be_converted_to_number if {
