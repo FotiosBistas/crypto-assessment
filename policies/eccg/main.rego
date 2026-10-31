@@ -88,7 +88,7 @@ policy_sources := [
     {
         "section": "Asymmetric Constructions",
         "subsection": "Digital Signature Schemes",
-        "findings": data.cbom.eccg.asymmetric_constructions.digital_signature.findings
+        "findings": data.cbom.eccg.asymmetric_constructions.digital_signatures.findings
     },
     {
         "section": "Asymmetric Atomic Primitives",
